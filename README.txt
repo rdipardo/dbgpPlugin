@@ -2,19 +2,19 @@ DBGP Notepad++ plugin
 
 ABSTRACT
 
-This is a plugin for Notepad++ 4.4. It is a debugger client that talks DBGP 
-protocol. It was built mostly for PHP (XDebug) but may/should/will work with 
+This is a plugin for Notepad++ 4.4. It is a debugger client that talks DBGP
+protocol. It was built mostly for PHP (XDebug) but may/should/will work with
 other languages as well.
 
 HISTORY
 
-I was looking for a good PHP debugger for a long time. I tried most of what’s 
-out there and finally found XDebug. Server side part was good and the only 
-thing left was to find a decent client. Tuff luck! Most editors listed on the 
-site were either too big or did not work as I expected (mostly editor wise) or 
+I was looking for a good PHP debugger for a long time. I tried most of what’s
+out there and finally found XDebug. Server side part was good and the only
+thing left was to find a decent client. Tuff luck! Most editors listed on the
+site were either too big or did not work as I expected (mostly editor wise) or
 I could not test them at all.
-We are heavy users of Notepad++ (yes... like a drug). The editor behaves just as 
-we want it and it is blazing fast. I started experimenting with the plugin 
+We are heavy users of Notepad++ (yes... like a drug). The editor behaves just as
+we want it and it is blazing fast. I started experimenting with the plugin
 interface and ended up writing this plugin in Delphi.
 
 VERSION
@@ -32,14 +32,14 @@ from your browser (see FireFox XDebug helper extension). The engine (web server)
 connects to the client (Notepad++) and you can do your magic.
 
 FEATURES / TODOS
- 
+
 + a dockable main form with child dialogs that dock
 + configuration dialog
 + stack child
 + properties child
 + context child
 + eval child
-+ raw child (for debugging) 
++ raw child (for debugging)
 + breakpoint child
 + breakpoint indicator (SCI)
 + tracing command (step into, over, out, run)
@@ -81,7 +81,7 @@ SERVER SIDE INSTALL
 Download xdebug binary that suites your needs. You should read the instructions
 over at http://www.xdebug.com/docs/remote how to set it up, here is just a
 quick start:
-xdebug.remote_enable=On 
+xdebug.remote_enable=On
 xdebug.remote_host=127.0.0.1
 xdebug.remote_enable=1
 xdebug.remote_handler=dbgp
@@ -113,7 +113,7 @@ One of the simplest ways to test remote debugging is a local command line setup.
     C:\test>set XDEBUG_CONFIG="idekey=xxx"
 	C:\test>php test.php
 - Notepad++ should flash indicating a debugging session is in progress.
-	
+
 USAGE
 
 When installed the plugin exposes a new submenu in the Plugins menu. The first
@@ -137,7 +137,7 @@ Remote IP   IDE KEY     Remote Path   Local Path
 
 The first one is a classic mapping for a remote *nix box, while the second is a
 windows server. Local development should work right away, but if there are problems
-a dialog will pop up with some information. 
+a dialog will pop up with some information.
 In 0.2 a "Local path" constant was added. If it's "DBGP:" then the file will be
 fetched via the SOURCE command.
 
