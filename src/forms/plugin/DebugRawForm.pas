@@ -62,7 +62,7 @@ begin
   mf := self.Owner as TNppDockingForm1;
   if Assigned(mf.sock) then
   begin
-    mf.sock.SendText(self.ComboBox1.Text+#0);
+    mf.sock.SendText(UTF8Encode(self.ComboBox1.Text)+#0);
     mf.sock.debugdata.Add('Raw: '+self.ComboBox1.Text);
   end;
   self.ComboBox1.Items.Add(self.ComboBox1.Text);

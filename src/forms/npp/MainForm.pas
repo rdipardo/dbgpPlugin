@@ -49,7 +49,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ServerSocket1Accept(Sender: TObject;
       Socket: TCustomWinSocket);
-    procedure ServerSocket1GetSocket(Sender: TObject; Socket: Integer;
+    procedure ServerSocket1GetSocket(Sender: TObject; Socket: NativeInt;
       var ClientSocket: TServerClientWinSocket);
     procedure ServerSocket1ClientRead(Sender: TObject;
       Socket: TCustomWinSocket);
@@ -125,7 +125,7 @@ var
 implementation
 
 {$R *.dfm}
-uses dbgpnppplugin, nppplugin, SciSupport;
+uses dbgpnppplugin, nppplugin;
 
 destructor TNppDockingForm1.Destroy;
 var
@@ -137,7 +137,8 @@ begin
     sock := self.ComboBox1.Items.Objects[i] as TDbgpWinSocket;
     if sock<>nil then sock.Close;
   end;
-  if (self.ServerSocket1.Active) then self.ServerSocket1.Close;
+  if Assigned(self.ServerSocket1) then
+    if (self.ServerSocket1.Active) then self.ServerSocket1.Close;
   inherited;
 end;
 
@@ -222,7 +223,7 @@ begin
 end;
 
 procedure TNppDockingForm1.ServerSocket1GetSocket(Sender: TObject;
-  Socket: Integer; var ClientSocket: TServerClientWinSocket);
+  Socket: NativeInt; var ClientSocket: TServerClientWinSocket);
 begin
   ClientSocket := TDbgpWinSocket.Create(Socket,Sender as TServerWinSocket);
   self.SetupSession(ClientSocket as TDbgpWinSocket);
@@ -616,8 +617,10 @@ end;
 procedure TNppDockingForm1.BitBtnCloseClick(Sender: TObject);
 begin
   if (Assigned(self.sock)) then self.sock.Close;
-  if (self.ServerSocket1.Active) then self.BitBtnClose.Caption := 'Turn ON' else self.BitBtnClose.Caption := 'Turn OFF';
-  if (self.ServerSocket1.Active) then self.ServerSocket1.Close else self.ServerSocket1.Open;
+  if Assigned(self.ServerSocket1) then begin
+    if (self.ServerSocket1.Active) then self.BitBtnClose.Caption := 'Turn ON' else self.BitBtnClose.Caption := 'Turn OFF';
+    if (self.ServerSocket1.Active) then self.ServerSocket1.Close else self.ServerSocket1.Open;
+  end;
 end;
 
 procedure TNppDockingForm1.BitBtnRawClick(Sender: TObject);
@@ -690,8 +693,8 @@ begin
   CloseFile(f);
   SendMessage(self.Npp.NppData.NppHandle, WM_DOOPEN, 0, LPARAM(PChar(s)));
 
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SciSupport.SCI_CLEARALL,0,0);
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SciSupport.SCI_APPENDTEXT,10,LPARAM(PChar('123456789012')));
+  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_CLEARALL,0,0);
+  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_APPENDTEXT,10,LPARAM(PChar('123456789012')));
 
 end;
 }

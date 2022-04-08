@@ -37,7 +37,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure VirtualStringTree1GetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure VirtualStringTree1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GetContext1Click(Sender: TObject);
@@ -97,7 +97,7 @@ end;
 
 procedure TDebugStackForm1.VirtualStringTree1GetText(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: WideString);
+  TextType: TVSTTextType; var CellText: string);
 var
   si: PStackItem;
 begin

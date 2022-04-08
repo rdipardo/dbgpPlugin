@@ -224,6 +224,7 @@ begin
   inherited;
   self.TransID := 1; // internal counter
   self.debugdata := TStringList.Create;
+  self.urlParser := TURLEncoding.Create;
   self.Transaction_id := ''; // return transaction
   self.last_response_command := '';
   self.remote_unix := true;
@@ -241,14 +242,15 @@ destructor TDbgpWinSocket.Destroy;
 var
   i: integer;
 begin
-  self.debugdata.Free;
+  FreeAndNil(self.debugdata);
+  FreeAndNil(self.urlParser);
   // delete the shit
   for i := 0 to self.source_files.Count-1 do
   begin
     FileSetReadOnly(self.MapSourceToLocal(self.source_files[i]),false);
     //DeleteFile(self.MapSourceToLocal(self.source_files[i]));
   end;
-  self.source_files.Free;
+  FreeAndNil(self.source_files);
   inherited;
 end;
 
@@ -899,7 +901,7 @@ end;
 function TDbgpWinSocket.ReadDBGP: String;
 var
   res,s,s2:String;
-  len:Integer;
+  len:Cardinal;
 {$IFDEF DBGP_COMPRESSION}
   zp: Pointer;
   zs: integer;
@@ -1034,7 +1036,7 @@ begin
   Result := -1;
   if (not self.Connected) then exit;
 
-  d := Cmd + ' -i '+IntToStr(self.TransID);
+  d := Format('%s -i %d', [Cmd, self.TransID]);
   Result := self.TransID;
   inc(self.TransID);
   if (Args <> '') then
@@ -1042,7 +1044,7 @@ begin
   if (Base64 <> '') then
     d := d + ' -- '+Encode64(Base64);
     //d := d + ' -- '+Base64Encode(Base64);
-  self.SendText(d+#0);
+  self.SendText(UTF8Encode(d)+#0);
   self.debugdata.Add('Send: '+d);
 end;
 

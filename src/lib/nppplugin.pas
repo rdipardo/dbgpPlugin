@@ -22,306 +22,40 @@ unit nppplugin;
 interface
 
 uses
-  Windows,Messages,SciSupport,SysUtils,
-  Dialogs,Classes,Forms{,NppDockingForm};
+  Classes, SysUtils, Windows, Messages, Vcl.Dialogs, Vcl.Forms;
 
-const
-  FuncItemNameLen=64;
-  MaxFuncs = 11;
-
-  { Most of this defs are outdated... But there is no consistant N++ doc... }
-  NOTEPADPLUS_USER = (WM_USER + 1000);
-  NPPM_GETCURRENTSCINTILLA = (NOTEPADPLUS_USER + 4);
-  NPPM_GETCURRENTLANGTYPE = (NOTEPADPLUS_USER + 5);
-  NPPM_SETCURRENTLANGTYPE = (NOTEPADPLUS_USER + 6);
-  NPPM_GETNBOPENFILES = (NOTEPADPLUS_USER + 7);
-    ALL_OPEN_FILES = 0;
-    PRIMARY_VIEW = 1;
-    SECOND_VIEW	= 2;
-  NPPM_GETOPENFILENAMES = (NOTEPADPLUS_USER + 8);
-  WM_CANCEL_SCINTILLAKEY = (NOTEPADPLUS_USER + 9);
-  WM_BIND_SCINTILLAKEY = (NOTEPADPLUS_USER + 10);
-  WM_SCINTILLAKEY_MODIFIED = (NOTEPADPLUS_USER + 11);
-  NPPM_MODELESSDIALOG = (NOTEPADPLUS_USER + 12);
-    MODELESSDIALOGADD = 0;
-    MODELESSDIALOGREMOVE = 1;
-
-  NPPM_GETNBSESSIONFILES = (NOTEPADPLUS_USER + 13);
-  NPPM_GETSESSIONFILES = (NOTEPADPLUS_USER + 14);
-  NPPM_SAVESESSION = (NOTEPADPLUS_USER + 15);
-  NPPM_SAVECURRENTSESSION  =(NOTEPADPLUS_USER + 16);  // see TSessionInfo
-  NPPM_GETOPENFILENAMESPRIMARY = (NOTEPADPLUS_USER + 17);
-  NPPM_GETOPENFILENAMESSECOND = (NOTEPADPLUS_USER + 18);
-  WM_GETPARENTOF = (NOTEPADPLUS_USER + 19);
-  NPPM_CREATESCINTILLAHANDLE = (NOTEPADPLUS_USER + 20);
-  NPPM_DESTROYSCINTILLAHANDLE = (NOTEPADPLUS_USER + 21);
-  NPPM_GETNBUSERLANG = (NOTEPADPLUS_USER + 22);
-  NPPM_GETCURRENTDOCINDEX = (NOTEPADPLUS_USER + 23);
-    MAIN_VIEW = 0;
-    SUB_VIEW = 1;
-
-  NPPM_SETSTATUSBAR = (NOTEPADPLUS_USER + 24);
-    STATUSBAR_DOC_TYPE = 0;
-    STATUSBAR_DOC_SIZE = 1;
-    STATUSBAR_CUR_POS = 2;
-    STATUSBAR_EOF_FORMAT = 3;
-    STATUSBAR_UNICODE_TYPE = 4;
-    STATUSBAR_TYPING_MODE = 5;
-
-  NPPM_GETMENUHANDLE = (NOTEPADPLUS_USER + 25);
-    NPPPLUGINMENU = 0;
-
-  NPPM_ENCODESCI = (NOTEPADPLUS_USER + 26);
-  //ascii file to unicode
-  //int WM_ENCODE_SCI(MAIN_VIEW/SUB_VIEW, 0)
-  //return new unicodeMode
-
-  NPPM_DECODESCI = (NOTEPADPLUS_USER + 27);
-  //unicode file to ascii
-  //int WM_DECODE_SCI(MAIN_VIEW/SUB_VIEW, 0)
-  //return old unicodeMode
-
-  NPPM_ACTIVATEDOC = (NOTEPADPLUS_USER + 28);
-  //void WM_ACTIVATE_DOC(int index2Activate, int view)
-
-  NPPM_LAUNCHFINDINFILESDLG = (NOTEPADPLUS_USER + 29);
-  //void WM_LAUNCH_FINDINFILESDLG(char * dir2Search, char * filtre)
-
-  NPPM_DMMSHOW = (NOTEPADPLUS_USER + 30);
-  NPPM_DMMHIDE	= (NOTEPADPLUS_USER + 31);
-  NPPM_DMMUPDATEDISPINFO = (NOTEPADPLUS_USER + 32);
-  //void WM_DMM_xxx(0, tTbData->hClient)
-
-  NPPM_DMMREGASDCKDLG = (NOTEPADPLUS_USER + 33);
-  //void WM_DMM_REGASDCKDLG(0, &tTbData)
-
-  NPPM_LOADSESSION = (NOTEPADPLUS_USER + 34);
-  //void WM_LOADSESSION(0, const char* file name)
-  NPPM_DMMVIEWOTHERTAB = (NOTEPADPLUS_USER + 35);
-  //void WM_DMM_VIEWOTHERTAB(0, tTbData->hClient)
-  NPPM_RELOADFILE = (NOTEPADPLUS_USER + 36);
-  //BOOL WM_RELOADFILE(BOOL withAlert, char *filePathName2Reload)
-  NPPM_SWITCHTOFILE = (NOTEPADPLUS_USER + 37);
-  //BOOL WM_SWITCHTOFILE(0, char *filePathName2switch)
-  NPPM_SAVECURRENTFILE = (NOTEPADPLUS_USER + 38);
-  //BOOL WM_SWITCHTOFILE(0, 0)
-  NPPM_SAVEALLFILES	= (NOTEPADPLUS_USER + 39);
-  //BOOL WM_SAVEALLFILES(0, 0)
-  NPPM_SETMENUITEMCHECK	= (NOTEPADPLUS_USER + 40);
-  //void WM_PIMENU_CHECK(UINT	funcItem[X]._cmdID, TRUE/FALSE)
-  NPPM_ADDTOOLBARICON = (NOTEPADPLUS_USER + 41); // see TToolbarIcons
-  //void WM_ADDTOOLBARICON(UINT funcItem[X]._cmdID, toolbarIcons icon)
-  NPPM_GETWINDOWSVERSION = (NOTEPADPLUS_USER + 42);
-  //winVer WM_GETWINDOWSVERSION(0, 0)
-  NPPM_DMMGETPLUGINHWNDBYNAME = (NOTEPADPLUS_USER + 43);
-  //HWND WM_DMM_GETPLUGINHWNDBYNAME(const char *windowName, const char *moduleName)
-  // if moduleName is NULL, then return value is NULL
-  // if windowName is NULL, then the first found window handle which matches with the moduleName will be returned
-  NPPM_MAKECURRENTBUFFERDIRTY = (NOTEPADPLUS_USER + 44);
-  //BOOL NPPM_MAKECURRENTBUFFERDIRTY(0, 0)
-  NPPM_GETENABLETHEMETEXTUREFUNC = (NOTEPADPLUS_USER + 45);
-  //BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0)
-  NPPM_GETPLUGINSCONFIGDIR = (NOTEPADPLUS_USER + 46);
-  //void NPPM_GETPLUGINSCONFIGDIR(int strLen, char *str)
-
-  // Notification code
-  NPPN_FIRST = 1000;
-  NPPN_READY = (NPPN_FIRST + 1);
-  // To notify plugins that all the procedures of launchment of notepad++ are done.
-  //scnNotification->nmhdr.code = NPPN_READY;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_TB_MODIFICATION = (NPPN_FIRST + 2);
-  // To notify plugins that toolbar icons can be registered
-  //scnNotification->nmhdr.code = NPPN_TB_MODIFICATION;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILEBEFORECLOSE = (NPPN_FIRST + 3);
-  // To notify plugins that the current file is about to be closed
-  //scnNotification->nmhdr.code = NPPN_FILEBEFORECLOSE;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILEOPENED = (NPPN_FIRST + 4);
-  // To notify plugins that the current file is just opened
-  //scnNotification->nmhdr.code = NPPN_FILEOPENED;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILECLOSED = (NPPN_FIRST + 5);
-  // To notify plugins that the current file is just closed
-  //scnNotification->nmhdr.code = NPPN_FILECLOSED;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILEBEFOREOPEN = (NPPN_FIRST + 6);
-  // To notify plugins that the current file is about to be opened
-  //scnNotification->nmhdr.code = NPPN_FILEBEFOREOPEN;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILEBEFORESAVE = (NPPN_FIRST + 7);
-  // To notify plugins that the current file is about to be saved
-  //scnNotification->nmhdr.code = NPPN_FILEBEFOREOPEN;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_FILESAVED = (NPPN_FIRST + 8);
-  // To notify plugins that the current file is just saved
-  //scnNotification->nmhdr.code = NPPN_FILECLOSED;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  NPPN_SHUTDOWN = (NPPN_FIRST + 9);
-  // To notify plugins that Notepad++ is about to be shutdowned.
-  //scnNotification->nmhdr.code = NPPN_SHOUTDOWN;
-  //scnNotification->nmhdr.hwndFrom = hwndNpp;
-  //scnNotification->nmhdr.idFrom = 0;
-
-  RUNCOMMAND_USER    = (WM_USER + 3000);
-    VAR_NOT_RECOGNIZED = 0;
-    FULL_CURRENT_PATH = 1;
-    CURRENT_DIRECTORY = 2;
-    FILE_NAME = 3;
-    NAME_PART = 4;
-    EXT_PART = 5;
-    CURRENT_WORD = 6;
-    NPP_DIRECTORY = 7;
-  NPPM_GETFULLCURRENTPATH = (RUNCOMMAND_USER + FULL_CURRENT_PATH);
-  NPPM_GETCURRENTDIRECTORY = (RUNCOMMAND_USER + CURRENT_DIRECTORY);
-  NPPM_GETFILENAME = (RUNCOMMAND_USER + FILE_NAME);
-  NPPM_GETNAMEPART = (RUNCOMMAND_USER + NAME_PART);
-  NPPM_GETEXTPART = (RUNCOMMAND_USER + EXT_PART);
-  NPPM_GETCURRENTWORD = (RUNCOMMAND_USER + CURRENT_WORD);
-  NPPM_GETNPPDIRECTORY = (RUNCOMMAND_USER + NPP_DIRECTORY);
-
-  MACRO_USER    = (WM_USER + 4000);
-  WM_ISCURRENTMACRORECORDED = (MACRO_USER + 01);
-  WM_MACRODLGRUNMACRO       = (MACRO_USER + 02);
-
-
-{ Humm.. is tis npp specific? }
-  SCINTILLA_USER = (WM_USER + 2000);
-{
-#define WM_DOCK_USERDEFINE_DLG      (SCINTILLA_USER + 1)
-#define WM_UNDOCK_USERDEFINE_DLG    (SCINTILLA_USER + 2)
-#define WM_CLOSE_USERDEFINE_DLG		(SCINTILLA_USER + 3)
-#define WM_REMOVE_USERLANG		    (SCINTILLA_USER + 4)
-#define WM_RENAME_USERLANG			(SCINTILLA_USER + 5)
-#define WM_REPLACEALL_INOPENEDDOC	(SCINTILLA_USER + 6)
-#define WM_FINDALL_INOPENEDDOC  	(SCINTILLA_USER + 7)
-}
-  WM_DOOPEN = (SCINTILLA_USER + 8);
-{
-#define WM_FINDINFILES			  	(SCINTILLA_USER + 9)
-}
-
-{ docking.h }
-//   defines for docking manager
-  CONT_LEFT = 0;
-  CONT_RIGHT = 1;
-  CONT_TOP = 2;
-  CONT_BOTTOM = 3;
-  DOCKCONT_MAX = 4;
-
-// mask params for plugins of internal dialogs
-  DWS_ICONTAB = 1; // Icon for tabs are available
-  DWS_ICONBAR = 2; // Icon for icon bar are available (currently not supported)
-  DWS_ADDINFO = 4; // Additional information are in use
-
-// default docking values for first call of plugin
-  DWS_DF_CONT_LEFT = CONT_LEFT shl 28;	        // default docking on left
-  DWS_DF_CONT_RIGHT = CONT_RIGHT shl 28;	// default docking on right
-  DWS_DF_CONT_TOP = CONT_TOP shl 28;	        // default docking on top
-  DWS_DF_CONT_BOTTOM = CONT_BOTTOM shl 28;	// default docking on bottom
-  DWS_DF_FLOATING = $80000000;			// default state is floating
-
-{ dockingResource.h }
-  DMN_FIRST = 1050;
-  DMN_CLOSE = (DMN_FIRST + 1); //nmhdr.code = DWORD(DMN_CLOSE, 0)); //nmhdr.hwndFrom = hwndNpp; //nmhdr.idFrom = ctrlIdNpp;
-  DMN_DOCK = (DMN_FIRST + 2);
-  DMN_FLOAT = (DMN_FIRST + 3); //nmhdr.code = DWORD(DMN_XXX, int newContainer);	//nmhdr.hwndFrom = hwndNpp; //nmhdr.idFrom = ctrlIdNpp;
-
-
-type
-  TNppLang = (L_TXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,
-              L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI, L_NFO, L_USER,
-              L_ASP, L_SQL, L_VB, L_JS, L_CSS, L_PERL, L_PYTHON, L_LUA,
-              L_TEX, L_FORTRAN, L_BASH, L_FLASH, L_NSIS, L_TCL, L_LISP, L_SCHEME,
-              L_ASM, L_DIFF, L_PROPS, L_PS, L_RUBY, L_SMALLTALK, L_VHDL, L_KIX, L_AU3,
-              L_CAML, L_ADA, L_VERILOG, L_MATLAB, L_HASKELL, L_INNO,
-              // The end of enumated language type, so it should be always at the end
-              L_END);
-
-  TSessionInfo = record
-    SessionFilePathName: PChar;
-    NumFiles: Integer;
-    Files: array of PChar;
-  end;
-
-  TToolbarIcons = record
-    ToolbarBmp: HBITMAP;
-    ToolbarIcon: HICON;
-  end;
-
-  TNppData = record
-    NppHandle: HWND;
-    ScintillaMainHandle: HWND;
-    ScintillaSecondHandle: HWND;
-  end;
-
-  TShortcutKey = record
-    IsCtrl: Boolean;
-    IsAlt: Boolean;
-    IsShift: Boolean;
-    Key: Char;
-  end;
-  PShortcutKey = ^TShortcutKey;
-
-  PFUNCPLUGINCMD = procedure; cdecl;
-
-  _TFuncItem = record
-    ItemName: Array[0..FuncItemNameLen-1] of WideChar; // unicode
-    Func: PFUNCPLUGINCMD;
-    CmdID: Integer;
-    Checked: Boolean;
-    ShortcutKey: PShortcutKey;
-  end;
-
-  TToolbarData = record
-    ClientHandle: HWND;
-    Title: PWideChar; // unicode
-    DlgId: Integer;
-    Mask: Integer;
-    IconTab: HICON; // still dont know how to use this...
-    AdditionalInfo: PChar;
-    FloatRect: TRect;  // internal
-    PrevContainer: Integer; // internal
-    ModuleName:PWideChar; // name of module GetModuleFileName(0...)
-  end;
+{$I '..\Include\Scintilla.inc'}
+{$I '..\Include\Npp.inc'}
 
   TNppPlugin = class(TObject)
   protected
     PluginName: WideString; // unicode
     FuncArray: array of _TFuncItem;
     function GetPluginsConfigDir: WideString;
+    function SupportsDarkMode: Boolean; // needs N++ 8.0 or later
+    function SupportsBigFiles: Boolean; // needs N++ 8.3 or later
+    function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD): Integer; overload;
+    function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD;
+      ShortcutKey: PShortcutKey): Integer; overload;
+    function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: AnsiChar)
+      : PShortcutKey;
   public
     NppData: TNppData;
     constructor Create;
     destructor Destroy; override;
     procedure BeforeDestruction; override;
+    function CmdIdFromDlgId(DlgId: Integer): Integer;
 
     // needed for DLL export.. wrappers are in the main dll file.
     procedure SetInfo(NppData: TNppData);
     function GetName: PWChar;
     function GetFuncsArray(var FuncsCount: Integer): Pointer;
-    procedure BeNotified(sn: PSCNotification); virtual;
+    procedure BeNotified(sn: PSciNotification); virtual;
     procedure MessageProc(var Msg: TMessage); virtual;
 
-    // usefull stuff
-    procedure RegisterDockingForm(form: TForm{TNppDockingForm});
+    // hooks
+    procedure DoNppnToolbarModification; virtual;
+    procedure DoNppnShutdown; virtual;
 
     // df
     function DoOpen(filename: WideString): boolean; overload;
@@ -335,11 +69,9 @@ type
 
 implementation
 
-uses
-  NppDockingForm, Math;
 { TNppPlugin }
 
-{ This is hacking for troubble...
+{ This is hacking for trouble...
   We need to unset the Application handler so that the forms
   don't get berserk and start throwing OS error 1004.
   This happens because the main NPP HWND is already lost when the
@@ -351,11 +83,6 @@ begin
   Application.Handle := 0;
   Application.Terminate;
   inherited;
-end;
-
-procedure TNppPlugin.BeNotified(sn: PSCNotification);
-begin
-  // @todo
 end;
 
 constructor TNppPlugin.Create;
@@ -377,47 +104,57 @@ begin
   inherited;
 end;
 
-function TNppPlugin.DoOpen(filename: WideString): boolean;
+function TNppPlugin.AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD): Integer;
 var
-  r: integer;
-  s: WideString;
+  i: Integer;
 begin
-  // ask if we are not already opened
-  SetLength(s, 500);
-  r := SendMessageW(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0, LPARAM(PWideChar(s)));
-  SetLength(s, WideStrLen(PWideChar(s)));
-//  SetString(s, PChar(s), strlen(PChar(s)));
-  Result := true;
-  if (s = filename) then exit;
-  r := SendMessageW(self.NppData.NppHandle, WM_DOOPEN, 0, LPARAM(PWideChar(filename)));
-  Result := (r=1);
+  i := Length(self.FuncArray);
+  SetLength(self.FuncArray, i + 1);
+  StringToWideChar(Name, self.FuncArray[i].ItemName, 1000);
+  self.FuncArray[i].Func := Func;
+  self.FuncArray[i].ShortcutKey := nil;
+  Result := i;
 end;
 
-function TNppPlugin.DoOpen(filename: WideString; Line: Integer): boolean;
+function TNppPlugin.AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD;
+  ShortcutKey: PShortcutKey): Integer;
 var
-  r: boolean;
+  i: Integer;
 begin
-  r := self.DoOpen(filename);
-  if (r) then
-    SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_GOTOLINE, Line,0);
-  Result := r;
+  i := self.AddFuncItem(Name, Func);
+  New(self.FuncArray[i].ShortcutKey);
+  self.FuncArray[i].ShortcutKey := ShortcutKey;
+  Result := i;
+end;
+
+function TNppPlugin.MakeShortcutKey(const Ctrl, Alt, Shift: Boolean;
+  const AKey: AnsiChar): PShortcutKey;
+begin
+  Result := New(PShortcutKey);
+  with Result^ do
+  begin
+    IsCtrl := Ctrl;
+    IsAlt := Alt;
+    IsShift := Shift;
+    Key := AKey;
+  end;
 end;
 
 procedure TNppPlugin.GetFileLine(var filename: String; var Line: Integer);
 var
-  s: WideString;
+  s: String;
   r: Integer;
 begin
   s := '';
   SetLength(s, 300);
-  SendMessageW(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH,0, LPARAM(PWideChar(s)));
-  SetLength(s, WideStrLen(PWideChar(s)));
-  //SetLength(s, StrLen(PChar(s)));
+  SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
+    LPARAM(PChar(s)));
+  SetLength(s, StrLen(PChar(s)));
   filename := s;
 
-  r := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_GETCURRENTPOS, 0, 0);
-  Line := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_LINEFROMPOSITION, r, 0);
-
+  r := SendMessage(self.NppData.ScintillaMainHandle, SCI_GETCURRENTPOS, 0, 0);
+  Line := SendMessage(self.NppData.ScintillaMainHandle,
+    SCI_LINEFROMPOSITION, r, 0);
 end;
 
 function TNppPlugin.GetFuncsArray(var FuncsCount: Integer): Pointer;
@@ -426,9 +163,20 @@ begin
   Result := self.FuncArray;
 end;
 
-function TNppPlugin.GetName: PWChar;
+function TNppPlugin.GetName: nppPChar;
 begin
-  Result := PWChar(self.PluginName);
+  Result := nppPChar(self.PluginName);
+end;
+
+function TNppPlugin.GetPluginsConfigDir: WideString;
+var
+  s: string;
+begin
+  SetLength(s, 1001);
+  SendMessage(self.NppData.NppHandle, NPPM_GETPLUGINSCONFIGDIR, 1000,
+    LPARAM(PChar(s)));
+  SetString(s, PChar(s), StrLen(PChar(s)));
+  Result := s;
 end;
 
 procedure TNppPlugin.GetOpenFiles(files: TStrings);
@@ -452,63 +200,38 @@ begin
   end;
 end;
 
-function TNppPlugin.GetPluginsConfigDir: WideString;
-var
-  s: WideString;
-  r: integer;
+procedure TNppPlugin.BeNotified(sn: PSciNotification);
 begin
-  SetLength(s, 1001);
-  r := SendMessageW(self.NppData.NppHandle, NPPM_GETPLUGINSCONFIGDIR, 1000, LPARAM(PWideChar(s)));
-  SetLength(s, WideStrLen(PWideChar(s)));
-//  SetString(s, PWideChar(s), StrLen(PWideChar(s)));
-  Result := s;
+  if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) and
+    (sn^.nmhdr.code = NPPN_TBMODIFICATION) then
+  begin
+    self.DoNppnToolbarModification;
+  end
+  else if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) and
+    (sn^.nmhdr.code = NPPN_SHUTDOWN) then
+  begin
+    self.DoNppnShutdown;
+  end;
+  // @todo
 end;
 
-function TNppPlugin.GetWord: string;
-var
-  s: string;
-begin
-  SetLength(s, 800);
-  SendMessage(self.NppData.NppHandle, NPPM_GETCURRENTWORD,800,LPARAM(PChar(s)));
-  Result := s;
-end;
+{$REGION 'Virtual procedures'}
 
 procedure TNppPlugin.MessageProc(var Msg: TMessage);
 var
   hm: HMENU;
-  i: integer;
+  i: Integer;
 begin
+  if (Msg.Msg = WM_CREATE) then
+  begin
+    // Change - to separator items
+    hm := GetMenu(self.NppData.NppHandle);
+    for i := 0 to Length(self.FuncArray) - 1 do
+      if (self.FuncArray[i].ItemName[0] = '-') then
+        ModifyMenu(hm, self.FuncArray[i].CmdID, MF_BYCOMMAND or
+          MF_SEPARATOR, 0, nil);
+  end;
   Dispatch(Msg);
-end;
-
-procedure TNppPlugin.RegisterDockingForm(form: TForm{TNppDockingForm});
-var
-  r:Integer;
-  td: TToolbarData;
-  _form: TNppDockingForm;
-  tmp: String;
-begin
-  _form := form as TNppDockingForm;
-  FillChar(td,sizeof(td),0);
-
-  td.ClientHandle := form.Handle;
-
-  GetMem(td.Title, 500);
-  StringToWideChar(form.Caption, td.Title, 500);
-  //StrLCopy(td.Title, PChar(form.Caption), 500);
-
-  td.DlgId := _form.DlgId;
-  td.Mask := DWS_DF_CONT_BOTTOM;{DWS_DF_FLOATING;} // change
-//  td.IconTab := nil;
-//  td.AdditionalInfo := Pchar('lala');
-
-  SetLength(tmp, 1000);
-  GetModuleFileName(HInstance, PChar(tmp), 1000);
-  SetLength(tmp, StrLen(PChar(tmp)));
-  GetMem(td.ModuleName, 1000);
-  StringToWideChar(ExtractFileName(tmp),td.ModuleName, 1000);
-
-  r:=SendMessage(self.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, Integer(@td));
 end;
 
 procedure TNppPlugin.SetInfo(NppData: TNppData);
@@ -525,5 +248,103 @@ begin
   while (Str[i] <> #0) do inc(i);
   Result := i;
 end;
+
+procedure TNppPlugin.DoNppnShutdown;
+begin
+  // override
+end;
+
+procedure TNppPlugin.DoNppnToolbarModification;
+begin
+  // override
+end;
+{$ENDREGION}
+
+// utils
+function TNppPlugin.GetWord: string;
+var
+  s: string;
+begin
+  SetLength(s, 800);
+  SendMessage(self.NppData.NppHandle, NPPM_GETCURRENTWORD, 0, LPARAM(PChar(s)));
+  Result := s;
+end;
+
+function TNppPlugin.DoOpen(filename: WideString): Boolean;
+var
+  r: Integer;
+  s: string;
+begin
+  // ask if we are not already opened
+  SetLength(s, 500);
+  r := SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
+    LPARAM(PChar(s)));
+  SetString(s, PChar(s), StrLen(PChar(s)));
+  Result := true;
+  if (s = filename) then
+    exit;
+  r := SendMessage(self.NppData.NppHandle, WM_DOOPEN, 0,
+    LPARAM(PChar(filename)));
+  Result := (r = 0);
+end;
+
+function TNppPlugin.DoOpen(filename: WideString; Line: Integer): Boolean;
+var
+  r: Boolean;
+begin
+  r := self.DoOpen(filename);
+  if (r) then
+    SendMessage(self.NppData.ScintillaMainHandle, SCI_GOTOLINE, Line, 0);
+  Result := r;
+end;
+
+function TNppPlugin.CmdIdFromDlgId(DlgId: Integer): Integer;
+begin
+  Result := self.FuncArray[DlgId].CmdID;
+end;
+
+/// since 8.0
+/// A return value of `true` means the NPPM_ADDTOOLBARICON_FORDARKMODE message is defined
+/// https://community.notepad-plus-plus.org/topic/21652/add-new-api-nppm_addtoolbaricon_fordarkmode-for-dark-mode
+function TNppPlugin.SupportsDarkMode: Boolean;
+var
+  NppVersion: Cardinal;
+begin
+  NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 0, 0);
+  Result := HIWORD(NppVersion) >= 8;
+end;
+
+/// since 8.3
+/// *** MAJOR BREAKING CHANGE ***
+/// A return value of `true` means that x64 editors return 64-bit character and line positions,
+/// i.e., sizeof(Sci_Position) == sizeof(NativeInt), and sizeof(Sci_PositionU) == sizeof(SIZE_T)
+/// https://community.notepad-plus-plus.org/topic/22471/recompile-your-x64-plugins-with-new-header
+{$HINTS off}
+function TNppPlugin.SupportsBigFiles: Boolean;
+const
+  // Also check for N++ versions 8.1.9.1, 8.1.9.2 and 8.1.9.3
+  PatchReleases: Array[0..2] of Word = ( 191, 192, 193 );
+var
+  NppVersion: Cardinal;
+  IsPatchRelease: Boolean;
+  i: Byte;
+begin
+  NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 0, 0);
+  IsPatchRelease := False;
+
+  for i := 0 to Length(PatchReleases) - 1 do
+  begin
+    IsPatchRelease := (LOWORD(NppVersion) = PatchReleases[i]);
+    if IsPatchRelease then Break;
+end;
+
+  Result :=
+    (HIWORD(NppVersion) > 8) or
+    ((HIWORD(NppVersion) = 8) and
+      // 8.3 => 8,3 *not* 8,30
+      (((LOWORD(NppVersion) >= 3) and (LOWORD(NppVersion) <= 9)) or
+       ((LOWORD(NppVersion) > 21) and not IsPatchRelease)));
+end;
+{$HINTS on}
 
 end.

@@ -20,6 +20,13 @@
 library dbgpPlugin;
 {$R 'dbgpPluginRes.res' 'dbgpPluginRes.rc'}
 
+{$IF CompilerVersion >= 21.0}
+{$WEAKLINKRTTI ON}
+{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
+{$ENDIF}
+
+{$WARN SYMBOL_PLATFORM OFF} 
+
 uses
   SysUtils,
   Classes,
@@ -28,12 +35,11 @@ uses
   Dialogs,
   Messages,
   Forms,
-  SciSupport in 'lib\SciSupport.pas',
   nppplugin in 'lib\nppplugin.pas',
   Base64 in 'lib\Base64.pas',
   dbgpnppplugin in 'lib\dbgpnppplugin.pas',
   DbgpWinSocket in 'lib\DbgpWinSocket.pas',
-  MainForm in 'forms\npp\MainForm.pas' {Form1},
+  MainForm in 'forms\npp\MainForm.pas' {NppDockingForm1},
   NppForms in 'forms\npp\NppForms.pas' {NppForm},
   NppDockingForm in 'forms\npp\NppDockingForm.pas',
   ConfigForm in 'forms\npp\ConfigForm.pas' {ConfigForm1},
@@ -83,7 +89,7 @@ begin
   Result := Npp.GetFuncsArray(nFuncs);
 end;
 
-procedure beNotified(sn: PSCNotification); cdecl; export;
+procedure beNotified(sn: PSciNotification); cdecl; export;
 begin
   Npp.BeNotified(sn);
 end;

@@ -42,14 +42,13 @@ type
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTree1GetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure VirtualStringTree1DblClick(Sender: TObject);
     procedure VirtualStringTree1PaintText(Sender: TBaseVirtualTree;
       const TargetCanvas: TCanvas; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType);
     procedure VirtualStringTree1HeaderClick(Sender: TVTHeader;
-      Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
-      Y: Integer);
+      Info: TVTHeaderHitInfo);
     procedure VirtualStringTree1CompareNodes(Sender: TBaseVirtualTree;
       Node1, Node2: PVirtualNode; Column: TColumnIndex;
       var Result: Integer);
@@ -236,7 +235,7 @@ end;
 
 procedure TDebugVarForm.VirtualStringTree1GetText(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: WideString);
+  TextType: TVSTTextType; var CellText: string);
 var
   Item: PPropertyItem;
 begin
@@ -286,9 +285,13 @@ begin
 end;
 
 procedure TDebugVarForm.VirtualStringTree1HeaderClick(Sender: TVTHeader;
-  Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
-  Y: Integer);
+  Info: TVTHeaderHitInfo);
+var
+  Column: TColumnIndex; 
+  Shift: TShiftState; 
 begin
+  Column := Info.Column; 
+  Shift := Info.Shift; 
   if (Column <> self.VirtualStringTree1.Header.SortColumn) then
   begin
     self.VirtualStringTree1.Header.SortColumn := Column;

@@ -1,17 +1,15 @@
-object NppForm: TNppForm
-  Left = 711
-  Top = 460
-  Width = 351
-  Height = 294
-  BorderStyle = bsSizeToolWin
-  Caption = 'NppForm'
+object NppDockingForm: TNppDockingForm
+  Left = 244
+  Top = 211
+  ClientHeight = 201
+  ClientWidth = 304
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
+  OldCreateOrder = True
   PixelsPerInch = 96
   TextHeight = 13
 end

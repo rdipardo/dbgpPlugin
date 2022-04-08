@@ -107,21 +107,25 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Define>JVCL_DEBUG;DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_UnitSearchPath>$(BDSLIB)\$(PLATFORM)\Debug;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
-        <DCC_ExeOutput>..\out\$(PLATFORM)\$(CONFIG)</DCC_ExeOutput>
+        <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.3.3_x86\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.3.3\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -130,13 +134,12 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <RcCompile Include="dbgpPluginRes.rc">
             <Form>dbgpPluginRes.res</Form>
         </RcCompile>
-        <DCCReference Include="lib\SciSupport.pas"/>
         <DCCReference Include="lib\nppplugin.pas"/>
         <DCCReference Include="lib\Base64.pas"/>
         <DCCReference Include="lib\dbgpnppplugin.pas"/>
         <DCCReference Include="lib\DbgpWinSocket.pas"/>
         <DCCReference Include="forms\npp\MainForm.pas">
-            <Form>Form1</Form>
+            <Form>NppDockingForm1</Form>
         </DCCReference>
         <DCCReference Include="forms\npp\NppForms.pas">
             <Form>NppForm</Form>
@@ -217,7 +220,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
+        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -225,7 +229,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
+        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;
+</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

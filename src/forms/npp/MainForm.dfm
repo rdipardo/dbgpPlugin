@@ -215,7 +215,7 @@ object NppDockingForm1: TNppDockingForm1
     Top = 0
     Width = 25
     Height = 25
-    Hint = 'Add breakpoint'
+    Hint = 'Toggle breakpoint'
     Enabled = False
     Glyph.Data = {
       36060000424D3606000000000000360000002800000020000000100000000100
@@ -564,6 +564,18 @@ object NppDockingForm1: TNppDockingForm1
     OnSelect = ComboBox1Select
     Items.Strings = (
       'Disconnected...')
+  end
+  object ServerSocket1: TServerSocket
+    Active = False
+    Port = 9000
+    ServerType = stNonBlocking
+    OnAccept = ServerSocket1Accept
+    OnGetSocket = ServerSocket1GetSocket
+    OnClientDisconnect = ServerSocket1ClientDisconnect
+    OnClientRead = ServerSocket1ClientRead
+    OnClientError = ServerSocket1ClientError
+    Left = 288
+    Top = 40
   end
   object JvDockServer1: TJvDockServer
     LeftSplitterStyle.Cursor = crHSplit

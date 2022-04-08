@@ -22,14 +22,19 @@ unit NppForms;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NppPlugin;
+  Windows, Messages, Classes, NppPlugin, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs;
 
 type
+  TWinApiMsgProc = function(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;
+    _LParam: LPARAM): LRESULT; stdcall;
+
   TNppForm = class(TForm)
   private
     { Private declarations }
   protected
+    function SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;
+      _LParam: LPARAM): LRESULT;
     procedure RegisterForm();
     procedure UnregisterForm();
     procedure DoClose(var Action: TCloseAction); override;
@@ -37,10 +42,10 @@ type
     { Public declarations }
     Npp: TNppPlugin;
     DefaultCloseAction: TCloseAction;
-    constructor Create(NppParent: TNppPlugin); overload;
-    constructor Create(AOwner: TNppForm); overload;
+    constructor Create(NppParent: TNppPlugin); reintroduce; overload;
+    constructor Create(AOwner: TNppForm); reintroduce; overload;
     destructor Destroy; override;
-//    procedure Show;
+    function WantChildKey(Child: TControl; var Message: TMessage): Boolean; override;
   end;
 
 var
@@ -64,8 +69,7 @@ constructor TNppForm.Create(AOwner: TNppForm);
 begin
   self.Npp := AOwner.Npp;
   self.DefaultCloseAction := caNone;
-  inherited Create(Aowner);
-  self.RegisterForm();
+  inherited Create(AOwner);
 end;
 
 destructor TNppForm.Destroy;
@@ -77,33 +81,37 @@ begin
   inherited;
 end;
 
-procedure TNppForm.RegisterForm();
+function TNppForm.SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;
+  _LParam: LPARAM): LRESULT;
 var
-  r: Integer;
+  _MsgProc: TWinApiMsgProc;
 begin
-  r:=SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, self.Handle);
-{
-  if (r = 0) then
+{$IFDEF CPUx64}
+  _MsgProc := SendMessageW;
+{$ELSE}
+  _MsgProc := SendMessage;
+{$ENDIF}
+  Result := _MsgProc(Hndl, Msg, _WParam, _LParam);
+end;
+
+procedure TNppForm.RegisterForm();
   begin
-    ShowMessage('Failed reg of form '+form.Name);
-    exit;
-  end;
-}
+  // "For each created dialog in your plugin, you should register it (and
+  // unregister while destroy it) to Notepad++ by using this message. If
+  // this message is ignored, then your dialog won't react with the key
+  // stroke messages such as TAB key. For the good functioning of your
+  // plugin dialog, you're recommended to not ignore this message"
+  // https://github.com/notepad-plus-plus/npp-usermanual/blob/master/content/docs/plugin-communication.md#nppm_modelessdialogage
+  SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG,
+    MODELESSDIALOGADD, LPARAM(self.Handle));
 end;
 
 procedure TNppForm.UnregisterForm();
-var
-  r: Integer;
 begin
-  if (not self.HandleAllocated) then exit;
-  r:=SendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, self.Handle);
-{
-  if (r = 0) then
-  begin
-    ShowMessage('Failed unreg form '+form.Name);
+  if (not self.HandleAllocated) then
     exit;
-  end;
-}
+  SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_MODELESSDIALOG,
+    MODELESSDIALOGREMOVE, LPARAM(self.Handle));
 end;
 
 procedure TNppForm.DoClose(var Action: TCloseAction);
@@ -112,5 +120,11 @@ begin
   inherited;
 end;
 
+// This is going to help us solve the problems we are having because of N++ handling our messages
+function TNppForm.WantChildKey(Child: TControl; var Message: TMessage): Boolean;
+begin
+  Result := Child.Perform(CN_BASE + Message.Msg, Message.WParam,
+    Message.LParam) <> 0;
+end;
 
 end.

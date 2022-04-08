@@ -24,7 +24,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, JvComponentBase, JvDockControlForm, VirtualTrees, DbgpWinSocket,
-  Menus, DebugBreakpointEditForm, NppDockingForm, ImgList;
+  Menus, DebugBreakpointEditForm, NppDockingForm, ImgList, System.UITypes;
 
 type
   TBreakpointEditCB = procedure(Sender: TComponent; bp: TBreakpoint) of Object;
@@ -42,12 +42,12 @@ type
     procedure Editbreakpoint1Click(Sender: TObject);
     procedure VirtualStringTree1GetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Removebreakpoint1Click(Sender: TObject);
     procedure VirtualStringTree1GetImageIndex(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-      var Ghosted: Boolean; var ImageIndex: Integer);
+      var Ghosted: Boolean; var ImageIndex: TImageIndex);
     procedure Removeallbreakpoints1Click(Sender: TObject);
   private
     { Private declarations }
@@ -177,7 +177,7 @@ end;
 
 procedure TDebugBreakpointsForm1.VirtualStringTree1GetText(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType; var CellText: WideString);
+  TextType: TVSTTextType; var CellText: string);
 var
   bp: PBreakpoint;
 begin
@@ -215,7 +215,7 @@ end;
 
 procedure TDebugBreakpointsForm1.VirtualStringTree1GetImageIndex(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind;
-  Column: TColumnIndex; var Ghosted: Boolean; var ImageIndex: Integer);
+  Column: TColumnIndex; var Ghosted: Boolean; var ImageIndex: TImageIndex);
 var
   bp: PBreakpoint;
 begin

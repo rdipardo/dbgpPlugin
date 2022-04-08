@@ -19,20 +19,19 @@
 
 unit dbgpnppplugin;
 {
-  This file "extends" the NppPlugin unit and implemets
+  This file "extends" the NppPlugin unit and implements
   the startup routines... The main dll handler calls these routines...
 }
 interface
 
 uses
-  NppPlugin,
-  MainForm, nppdockingform,
-  ConfigForm, Forms, SciSupport,
-  Classes, Dialogs, IniFiles, DbgpWinSocket, Messages, AboutForm;
+  NppPlugin, MainForm, nppdockingform,
+  ConfigForm, Forms, Classes, Dialogs, IniFiles, DbgpWinSocket, Messages, AboutForm;
 
 const
   MARKER_ARROW = 3;
   MARKER_BREAK = 4;
+  MENU_EVAL_INDEX = 8;
 type
   TDbgpNppPluginConfig = record
     maps: TMaps;
@@ -54,16 +53,17 @@ type
     ConfigForm: TConfigForm1;
     AboutForm: TAboutForm1;
     menuEvalIndex: Integer;
+    IsCompatible: Boolean;
     procedure GrayFuncItem(i: integer);
     procedure EnableFuncItem(i: integer);
     procedure InitMarkers;
+    procedure WarnUser;
   public
-    //maps: TMaps;
     config: TDbgpNppPluginConfig;
     constructor Create;
     destructor Destroy; override;
 
-    procedure BeNotified(sn: PSCNotification); override;
+    procedure BeNotified(sn: PSciNotification); override;
 
     procedure FuncDebugger;
     procedure FuncConfig;
@@ -113,15 +113,34 @@ implementation
 uses
   Windows,Graphics,SysUtils,Controls;
 
-//var   x:TToolbarIcons;
-
-procedure TDbgpNppPlugin.BeNotified(sn: PSCNotification);
+procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
 var
   x:^TToolbarIcons;
-  tr: TTextRange;
+  tr: TSciTextRange;
   s: string;
+  pzS: PAnsiChar;
   i: integer;
 begin
+  if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) then
+  begin
+    if (sn^.nmhdr.code = NPPN_TBMODIFICATION) then
+    begin
+      New(x);
+      x^.ToolbarIcon := 0;
+      x^.ToolbarBmp := LoadImage(Hinstance, 'IDB_DBGP_TEST', IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE or LR_LOADMAP3DCOLORS));
+      SendMessage(Npp.NppData.NppHandle, NPPM_ADDTOOLBARICON, self.FuncArray[0].CmdID, LPARAM(x));
+      self.IsCompatible := {$IFDEF CPUx64}self.SupportsBigFiles{$ELSE}True{$ENDIF};
+      if (not self.IsCompatible) then self.WarnUser;
+    end;
+    if (sn^.nmhdr.code = NPPN_SHUTDOWN) then
+    begin
+      if (Assigned(self.MainForm)) then self.MainForm.Hide;
+      if (Assigned(self.MainForm)) then FreeandNil(self.MainForm);
+    end;
+  end;
+
+  if (not self.IsCompatible) then Exit;
+
   if (sn^.nmhdr.code = NPPN_READY) then
   begin
     self.InitMarkers;
@@ -141,15 +160,16 @@ begin
     if (tr.chrg.cpMin<>-1) and (tr.chrg.cpMax-tr.chrg.cpMin>0) then
     begin
       SetLength(s, tr.chrg.cpMax-tr.chrg.cpMin+10);
-      tr.lpstrText := PAnsiChar(s);
+      tr.lpstrText := PAnsiChar(UTF8Encode(s));
       SendMessage(Npp.NppData.ScintillaMainHandle, SCI_GETTEXTRANGE, 0, LPARAM(@tr));
-      SetString(s, Pchar(tr.lpstrText), StrLen(PChar(tr.lpstrText)));
-      SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(PChar(s+' = Getting...')));
+      SetString(s, PAnsiChar(tr.lpstrText), StrLen(PAnsiChar(tr.lpstrText)));
+      pzS := PAnsiChar(UTF8Encode(s));
+      SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(pzS+' = Getting...'));
       SendMessage(self.NppData.ScintillaMainHandle, SCI_SETCHARSDEFAULT, 0, 0);
       if (s<>'') then
       begin
-        s := self.MainForm.sock.GetPropertyAsync(s);
-        SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(PChar(s)));
+        s := self.MainForm.sock.GetPropertyAsync(UTF8ToString(pzS));
+        SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(UTF8Encode(s)));
       end;
     end;
     if (s = '') then
@@ -168,7 +188,7 @@ begin
     if (Assigned(self.MainForm)) then
     begin
       self.GetFileLine(s,i);
-      i := SendMessage(self.NppData.ScintillaMainHandle, SciSupport.SCI_LINEFROMPOSITION, sn.position, 0);
+      i := SendMessage(self.NppData.ScintillaMainHandle, SCI_LINEFROMPOSITION, sn.position, 0);
       self.MainForm.ToggleBreakpoint(s,i+1);
       //ShowMessage('SCN_MARGINCLICK '+IntToStr(i));
     end;
@@ -178,174 +198,64 @@ begin
   begin
 //    ShowMessage('SCN_MODIFIED SC_MOD_CHANFEMARKER '+IntToStr(sn^.line));
   end;
-
-  if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) then
-  begin
-    if (sn^.nmhdr.code = NPPN_TB_MODIFICATION) then
-    begin
-      New(x);
-      x^.ToolbarIcon := 0;
-      x^.ToolbarBmp := LoadImage(Hinstance, 'IDB_DBGP_TEST', IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE or LR_LOADMAP3DCOLORS));
-      SendMessage(Npp.NppData.NppHandle, NPPM_ADDTOOLBARICON, self.FuncArray[0].CmdID, LPARAM(x));
-    end;
-    if (sn^.nmhdr.code = NPPN_SHUTDOWN) then
-    begin
-      if (Assigned(self.MainForm)) then self.MainForm.Hide;
-      if (Assigned(self.MainForm)) then self.MainForm.Free;
-      self.MainForm := nil;
-    end;
-  end;
 end;
 
 constructor TDbgpNppPlugin.Create;
 var
   sk: PShortcutKey;
-  i: Integer;
 begin
   inherited;
   // Setup menu items
-  SetLength(self.FuncArray,21);
+  self.menuEvalIndex := MENU_EVAL_INDEX;
 
   // #112 = F1... pojma nimam od kje...
   self.PluginName := 'DBGp';
+  self.AddFuncItem('&Debugger', _FuncDebugger);
+  self.AddFuncItem('-', nil);
 
-  i := 0;
+  sk := MakeShortcutKey(false, false, false, #118); // F7
+  self.AddFuncItem('Step &Into', _FuncStepInto, sk);
 
-  StringToWideChar('Debugger', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncDebugger;
-  New(self.FuncArray[i].ShortcutKey);
-  inc(i);
+  sk := MakeShortcutKey(false, false, false, #119); // F8
+  self.AddFuncItem('Step &Over', _FuncStepOver, sk);
 
-  StringToWideChar('-', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := nil;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
+  sk := MakeShortcutKey(false, false, true, #119); // Shift+F8
+  self.AddFuncItem('Step O&ut', _FuncStepOut, sk);
 
-  StringToWideChar('Step Into', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncStepInto;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := false; sk.IsAlt := false; sk.IsShift := false;
-  sk.Key := #118; // F7
-  inc(i);
+  self.AddFuncItem('Run &to', _FuncRunTo);
 
-  StringToWideChar('Step Over', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncStepOver;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := false; sk.IsAlt := false; sk.IsShift := false;
-  sk.Key := #119; // F8
-  inc(i);
+  sk := MakeShortcutKey(false, false, true, #120); // F9
+  self.AddFuncItem('&Run', _FuncRun, sk);
 
-  StringToWideChar('Step Out', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncStepOut;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := false; sk.IsAlt := false; sk.IsShift := true;
-  sk.Key := #119; // Shift+F8
-  inc(i);
+  self.AddFuncItem('&Stop', _FuncStop);
 
-  StringToWideChar('Run to', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncRunTo;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
+  Assert(self.menuEvalIndex = self.AddFuncItem('-', nil));
 
-  StringToWideChar('Run', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncRun;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := false; sk.IsAlt := false; sk.IsShift := false;
-  sk.Key := #120; // F9
-  inc(i);
+  sk := MakeShortcutKey(true, false, false, #118); // Ctrl+F7
+  self.AddFuncItem('&Eval', _FuncEval, sk);
 
-  StringToWideChar('Stop', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncStop;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('-', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := nil;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  self.menuEvalIndex := i;
-  StringToWideChar('Eval', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncEval;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := true; sk.IsAlt := false; sk.IsShift := false;
-  sk.Key := #118; // Ctrl+F7
-  inc(i);
-
-  StringToWideChar('Toggle Breakpoint', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncBreakpoint;
-  New(self.FuncArray[i].ShortcutKey);
-  sk := self.FuncArray[i].ShortcutKey;
-  sk.IsCtrl := true; sk.IsAlt := false; sk.IsShift := false;
-  sk.Key := #120; // Ctrl+F9
-  inc(i);
+  sk := MakeShortcutKey(true, false, false, #120); // Ctrl+F9
+  self.AddFuncItem('Toggle &Breakpoint', _FuncBreakpoint, sk);
 
   // add stack and context items...
 
-  StringToWideChar('-', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := nil;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Local Context', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncLocalContext;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Global Context', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncGlobalContext;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Stack', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncStack;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Breakpoints', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncBreakpoints;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Watches', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncWatches;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('-', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := nil;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('Config...', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncConfig;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('-', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := nil;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  StringToWideChar('About...', self.FuncArray[i].ItemName, FuncItemNameLen);
-  self.FuncArray[i].Func := _FuncAbout;
-  self.FuncArray[i].ShortcutKey := nil;
-  inc(i);
-
-  //self.ReadMaps(self.config.maps);
+  self.AddFuncItem('-', nil);
+  self.AddFuncItem('&Local Context', _FuncLocalContext);
+  self.AddFuncItem('&Global Context', _FuncGlobalContext);
+  self.AddFuncItem('Stac&k', _FuncStack);
+  self.AddFuncItem('Break&points', _FuncBreakpoints);
+  self.AddFuncItem('&Watches', _FuncWatches);
+  self.AddFuncItem('-', nil);
+  self.AddFuncItem('&Config', _FuncConfig);
+  self.AddFuncItem('-', nil);
+  self.AddFuncItem('&About...', _FuncAbout);
 end;
 
 
 destructor TDbgpNppPlugin.Destroy;
 begin
   if (Assigned(self.MainForm)) then self.MainForm.Close;
-  if (Assigned(self.MainForm)) then self.MainForm.Free;
-  self.MainForm := nil;
+  if (Assigned(self.MainForm)) then FreeandNil(self.MainForm);
   inherited;
 end;
 
@@ -417,6 +327,8 @@ end;
 
 procedure TDbgpNppPlugin.FuncDebugger;
 begin
+  if (not IsCompatible) then Exit;
+
   self.ReadMaps(self.config.maps);
   // do some menu related stuff - njah...
   self.ChangeMenu(dmsDisconnected);
@@ -429,9 +341,10 @@ begin
   //self.MainForm.DlgId := self.FuncArray[0].CmdID;
   self.MainForm.DlgId := 0;
   //self.MainForm.Show;
-  self.RegisterDockingForm(TNppDockingForm(self.MainForm)); // move code to the docking class
+  self.MainForm.RegisterDockingForm(DWS_DF_CONT_BOTTOM);
   self.MainForm.Visible := true;
-  self.MainForm.ServerSocket1.Port := self.config.listen_port;
+  if Assigned(self.MainForm.ServerSocket1) then
+    self.MainForm.ServerSocket1.Port := self.config.listen_port;
   if (not self.config.start_closed) then self.MainForm.BitBtnCloseClick(nil); // activate socket
 end;
 
@@ -447,6 +360,8 @@ procedure TDbgpNppPlugin.FuncConfig;
 var
   r: TModalResult;
 begin
+  if (not IsCompatible) then Exit;
+
   self.ReadMaps(self.config.maps);
   self.ConfigForm := TConfigForm1.Create(self);
   //self.ConfigForm.DlgId := self.FuncArray[9].CmdID;
@@ -462,72 +377,72 @@ end;
 procedure TDbgpNppPlugin.FuncEval;
 begin
   // show eval dlg...
-  if (Assigned(self.MainForm)) then self.MainForm.DoEval;
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.DoEval;
 end;
 
 procedure TDbgpNppPlugin.FuncBreakpoint;
 begin
-  if (Assigned(self.MainForm)) and (self.MainForm.BitBtnBreakpoint.Enabled) then self.MainForm.BitBtnBreakpointClick(nil);
+  if (IsCompatible and Assigned(self.MainForm)) and (self.MainForm.BitBtnBreakpoint.Enabled) then self.MainForm.BitBtnBreakpointClick(nil);
 end;
 
 procedure TDbgpNppPlugin.FuncRunTo;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.BitBtnRunToClick(nil);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.BitBtnRunToClick(nil);
 end;
 
 procedure TDbgpNppPlugin.FuncRun;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.DoResume(Run);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.DoResume(Run);
 end;
 
 procedure TDbgpNppPlugin.FuncStop;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.BitBtnStopClick(nil);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.BitBtnStopClick(nil);
 end;
 
 procedure TDbgpNppPlugin.FuncStepInto;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.DoResume(StepInto);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.DoResume(StepInto);
 end;
 
 procedure TDbgpNppPlugin.FuncStepOut;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.DoResume(StepOut);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.DoResume(StepOut);
 end;
 
 procedure TDbgpNppPlugin.FuncStepOver;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.DoResume(StepOver);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.DoResume(StepOver);
 end;
 
 procedure TDbgpNppPlugin.FuncLocalContext;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.Open(dctLocalContect, true);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.Open(dctLocalContect, true);
 end;
 
 procedure TDbgpNppPlugin.FuncGlobalContext;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.Open(dctGlobalContext, true);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.Open(dctGlobalContext, true);
 end;
 
 procedure TDbgpNppPlugin.FuncBreakpoints;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.Open(dctBreakpoints, true);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.Open(dctBreakpoints, true);
 end;
 
 procedure TDbgpNppPlugin.FuncStack;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.Open(dctStack, true);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.Open(dctStack, true);
 end;
 
 procedure TDbgpNppPlugin.FuncWatches;
 begin
-  if (Assigned(self.MainForm)) then self.MainForm.Open(dctWatches, true);
+  if (IsCompatible and Assigned(self.MainForm)) then self.MainForm.Open(dctWatches, true);
 end;
 
 procedure TDbgpNppPlugin.InitMarkers;
 var
-  test: array [0..18] of String;
+  test: array [0..18] of AnsiString;
   r: integer;
 begin
   r := SendMessage(self.NppData.ScintillaMainHandle, SCI_GETMARGINMASKN, 1, 0);
@@ -695,6 +610,20 @@ begin
     for i:=self.menuEvalIndex+3 to self.menuEvalIndex+7 do self.EnableFuncItem(i);
   end;
 
+end;
+
+procedure TDbgpNppPlugin.WarnUser;
+const
+  Msg: string = 'This version of the DBGP plugin requires Notepad++ 8.3 or newer.'#13#10#13#10
+                 + 'Plugin commands have been disabled.';
+begin
+  try
+    if not self.IsCompatible then begin
+      MessageBox(Npp.NppData.NppHandle, PChar(Msg), PChar('DBGP plugin'), MB_ICONWARNING);
+    end;
+  except
+    ShowException(ExceptObject, ExceptAddr);
+  end;
 end;
 
 end.
