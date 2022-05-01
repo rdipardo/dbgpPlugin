@@ -112,7 +112,6 @@ object DebugBreakpointEditForm1: TDebugBreakpointEditForm1
     Width = 145
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     TabOrder = 0
     OnChange = ComboBox1Change
     Items.Strings = (
@@ -127,7 +126,6 @@ object DebugBreakpointEditForm1: TDebugBreakpointEditForm1
     Width = 145
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     ItemIndex = 0
     TabOrder = 1
     Text = 'Enabled'
@@ -183,7 +181,6 @@ object DebugBreakpointEditForm1: TDebugBreakpointEditForm1
     Width = 145
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     ItemIndex = 0
     TabOrder = 8
     Text = '>='

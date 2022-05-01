@@ -1,7 +1,6 @@
 object DebugInspectorForm1: TDebugInspectorForm1
   Left = 192
   Top = 110
-  AutoScroll = False
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Inspector'

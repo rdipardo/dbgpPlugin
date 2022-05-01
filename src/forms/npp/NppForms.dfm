@@ -1,10 +1,10 @@
 object NppForm: TNppForm
   Left = 711
   Top = 460
-  Width = 351
-  Height = 294
   BorderStyle = bsSizeToolWin
   Caption = 'NppForm'
+  ClientHeight = 255
+  ClientWidth = 335
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

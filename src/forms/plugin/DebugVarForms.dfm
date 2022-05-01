@@ -1,10 +1,10 @@
 object DebugVarForm: TDebugVarForm
   Left = 353
   Top = 122
-  Width = 395
-  Height = 326
   BorderStyle = bsSizeToolWin
   Caption = 'Attributes'
+  ClientHeight = 287
+  ClientWidth = 379
   Color = clBtnFace
   DockSite = True
   DragKind = dkDock
@@ -18,8 +18,8 @@ object DebugVarForm: TDebugVarForm
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    387
-    292)
+    379
+    287)
   PixelsPerInch = 96
   TextHeight = 13
   object VirtualStringTree1: TVirtualStringTree
@@ -29,11 +29,6 @@ object DebugVarForm: TDebugVarForm
     Height = 292
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
-    Header.Font.Charset = DEFAULT_CHARSET
-    Header.Font.Color = clWindowText
-    Header.Font.Height = -11
-    Header.Font.Name = 'MS Sans Serif'
-    Header.Font.Style = []
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
     Header.SortColumn = 0
     HintMode = hmTooltip
@@ -49,24 +44,26 @@ object DebugVarForm: TDebugVarForm
     OnPaintText = VirtualStringTree1PaintText
     OnHeaderClick = VirtualStringTree1HeaderClick
     OnInitChildren = VirtualStringTree1InitChildren
+    Touch.InteractiveGestures = [igPan, igPressAndTap]
+    Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
     Columns = <
       item
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 0
+        Text = 'Name'
         Width = 100
-        WideText = 'Name'
       end
       item
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 1
+        Text = 'Value'
         Width = 150
-        WideText = 'Value'
       end
       item
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 2
+        Text = 'Type'
         Width = 40
-        WideText = 'Type'
       end>
   end
   object JvDockClient1: TJvDockClient

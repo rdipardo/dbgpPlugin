@@ -1,7 +1,6 @@
 object DebugStackForm1: TDebugStackForm1
   Left = 776
   Top = 112
-  AutoScroll = False
   BorderStyle = bsSizeToolWin
   Caption = 'Stack'
   ClientHeight = 172
@@ -30,11 +29,6 @@ object DebugStackForm1: TDebugStackForm1
     Height = 172
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
-    Header.Font.Charset = DEFAULT_CHARSET
-    Header.Font.Color = clWindowText
-    Header.Font.Height = -11
-    Header.Font.Name = 'MS Sans Serif'
-    Header.Font.Style = []
     Header.Options = [hoColumnResize, hoDrag, hoVisible]
     HintMode = hmTooltip
     ParentShowHint = False
@@ -50,30 +44,30 @@ object DebugStackForm1: TDebugStackForm1
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 0
+        Text = 'Level'
         Width = 40
-        WideText = 'Level'
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 1
+        Text = 'File'
         Width = 250
-        WideText = 'File'
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 2
+        Text = 'Line'
         Width = 40
-        WideText = 'Line'
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 3
-        WideText = 'Where'
+        Text = 'Where'
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 4
-        WideText = 'Type'
+        Text = 'Type'
       end>
   end
   object JvDockClient1: TJvDockClient

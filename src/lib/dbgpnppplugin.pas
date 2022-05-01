@@ -135,7 +135,6 @@ begin
     if (sn^.nmhdr.code = NPPN_SHUTDOWN) then
     begin
       if (Assigned(self.MainForm)) then self.MainForm.Hide;
-      if (Assigned(self.MainForm)) then FreeandNil(self.MainForm);
     end;
   end;
 
@@ -255,7 +254,6 @@ end;
 destructor TDbgpNppPlugin.Destroy;
 begin
   if (Assigned(self.MainForm)) then self.MainForm.Close;
-  if (Assigned(self.MainForm)) then FreeandNil(self.MainForm);
   inherited;
 end;
 

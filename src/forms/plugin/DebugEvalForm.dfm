@@ -2,11 +2,10 @@ object DebugEvalForm1: TDebugEvalForm1
   Left = 339
   Top = 111
   ActiveControl = ComboBox1
-  AutoScroll = False
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Eval'
-  ClientHeight = 66
+  ClientHeight = 61
   ClientWidth = 333
   Color = clBtnFace
   Constraints.MaxHeight = 100
@@ -19,7 +18,7 @@ object DebugEvalForm1: TDebugEvalForm1
   OldCreateOrder = False
   DesignSize = (
     333
-    66)
+    61)
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
@@ -50,7 +49,6 @@ object DebugEvalForm1: TDebugEvalForm1
     Width = 313
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    ItemHeight = 13
     TabOrder = 0
   end
   object CheckBoxReuseResult: TCheckBox
