@@ -75,6 +75,12 @@ begin
 end;
 
 procedure TAboutForm1.FormCreate(Sender: TObject);
+const
+  bits: string = '('+{$IFDEF CPUx64}'64'{$ELSE}'32'{$ENDIF}+'-bit)';
+  minNppVersion: string =
+    {$IFDEF CPUx64}
+    {$IFNDEF NPP_NO_HUGE_FILES}'8.3'{$ELSE}'4.1'{$ENDIF}
+    {$ELSE}'4.1'{$ENDIF}+'+';
 var
   path: string;
   i: cardinal;
@@ -86,7 +92,7 @@ begin
   GetModuleFileName(i, PChar(path), 1000);
   SetLength(path, StrLen(PChar(path)));
   self.GetVersion(path,ma,mi,re,bu);
-  self.Label7.Caption := Format(self.Label7.Caption, [ma,mi,re,bu]);
+  self.Label7.Caption := Format(self.Label7.Caption, [ma,mi,re,bits,minNppVersion]);
 end;
 
 procedure TAboutForm1.GetVersion(FileName: string; var VerMajor, VerMinor,

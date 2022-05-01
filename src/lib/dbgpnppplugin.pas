@@ -612,12 +612,12 @@ end;
 
 procedure TDbgpNppPlugin.WarnUser;
 const
-  Msg: string = 'This version of the DBGP plugin requires Notepad++ 8.3 or newer.'#13#10#13#10
-                 + 'Plugin commands have been disabled.';
+  Msg: string = 'This version of DBGp requires Notepad++ 8.3 or newer.'#13#10
+                 + 'Plugin commands have been disabled to prevent a crash.';
 begin
   try
     if not self.IsCompatible then begin
-      MessageBox(Npp.NppData.NppHandle, PChar(Msg), PChar('DBGP plugin'), MB_ICONWARNING);
+      MessageBox(Npp.NppData.NppHandle, PChar(Msg), PChar('DBGp plugin (64-bit)'), MB_ICONWARNING);
     end;
   except
     ShowException(ExceptObject, ExceptAddr);

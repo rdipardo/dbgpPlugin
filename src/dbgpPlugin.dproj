@@ -67,25 +67,22 @@
         <GenDll>true</GenDll>
         <SanitizedProjectName>dbgpPlugin</SanitizedProjectName>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Locale>4105</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=zobo@users.sf.net;FileDescription=DBGP debugger plugin for Notepd++;FileVersion=0.14.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=Copyright (c) Damjan Zobo Cvetko;LegalTrademarks=GPLv2.0+, using library code under the GPLv3.0+ and LGPLv3.0+;OriginalFilename=$(MSBuildProjectName).dll;ProductName=$(MSBuildProjectName);ProductVersion=0.14.0.0;Comments=;CFBundleName=</VerInfo_Keys>
         <DCC_DcuOutput>..\out\dcu\$(PLATFORM)\$(CONFIG)</DCC_DcuOutput>
         <DCC_ExeOutput>..\out\$(PLATFORM)\$(CONFIG)</DCC_ExeOutput>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>14</VerInfo_MinorVer>
+        <VerInfo_PreRelease>true</VerInfo_PreRelease>
+        <VerInfo_DLL>true</VerInfo_DLL>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>(None)</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>(None)</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -97,14 +94,8 @@
 $(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>JVCL_DEBUG;DEBUG;$(DCC_Define)</DCC_Define>
@@ -116,15 +107,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.3.3_x86\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.4.0\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <ItemGroup>
@@ -220,8 +205,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;
-</PostBuildEvent>
+        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -229,8 +213,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;
-</PostBuildEvent>
+        <PostBuildEvent>&quot;C:\Users\Rob\scoop\apps\upx\current\upx.exe&quot; --best -q &quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

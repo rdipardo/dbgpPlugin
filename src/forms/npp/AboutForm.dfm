@@ -22,11 +22,14 @@ object AboutForm1: TAboutForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Label7: TLabel
-    Left = 8
-    Top = 8
-    Width = 240
+    Left = 0
+    Top = 0
+    Width = 252
     Height = 13
-    Caption = 'DBGP Plugin v%d.%d.%d.%d for Notepad++  v4.1+'
+    Align = alTop
+    Alignment = taCenter
+    Caption = 'DBGP Plugin v%d.%d.%d %s for Notepad++ v%s'
+    ExplicitWidth = 228
   end
   object Label8: TLabel
     Left = 8

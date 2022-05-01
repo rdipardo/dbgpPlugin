@@ -1,3 +1,12 @@
+2022-05-01 v0.14 alpha
+
+Added 64-bit platform support.
+Updated Scintilla interface to support 64-bit character positions in x64 Notepad++ 8.3 and later.
+*** This is NOT backward compatible with older x64 Notepad++ versions ***
+Upgraded project to Delphi 10.3.
+Updated VirtualTreeView to 7.6.1 from https://github.com/JAM-Software/Virtual-TreeView
+Updated sockets library to 26.0.36039.7899 (dclsockets260.bpl)
+
 2012-08-25 v0.13 beta
 
 On demand fetching of lower levels of property tree. If you set max_depth to 1
