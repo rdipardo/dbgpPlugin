@@ -567,7 +567,7 @@ object NppDockingForm1: TNppDockingForm1
   end
   object ServerSocket1: TServerSocket
     Active = False
-    Port = 9000
+    Port = 9003
     ServerType = stNonBlocking
     OnAccept = ServerSocket1Accept
     OnGetSocket = ServerSocket1GetSocket

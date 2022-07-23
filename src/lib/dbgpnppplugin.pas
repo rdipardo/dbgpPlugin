@@ -503,7 +503,7 @@ begin
   self.config.use_source := ( ini.ReadString('Misc','use_source','0') = '1' );
   self.config.start_closed := ( ini.ReadString('Misc','start_closed','0') = '1' );
   self.config.break_first_line := ( ini.ReadString('Misc','break_first_line','0') = '1' );
-  self.config.listen_port := ini.ReadInteger('Misc','listen_port',9000);
+  self.config.listen_port := ini.ReadInteger('Misc','listen_port',9003);
   self.config.max_depth := ini.ReadInteger('Features','max_depth',3);
   self.config.max_children := ini.ReadInteger('Features','max_children',15);
   self.config.local_setup := ( ini.ReadString('Misc','local_setup','1') = '1' );
