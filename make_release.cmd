@@ -18,7 +18,7 @@
 ::
 SETLOCAL
 
-set "VERSION=0.14-alpha"
+set "VERSION=0.14-alpha-2"
 set "PLUGIN=dbgpPlugin"
 set "SLUG_NAME=out\%PLUGIN%_v%VERSION%_win32"
 set "SLUGX64_NAME=out\%PLUGIN%_v%VERSION%_x64"
@@ -27,7 +27,7 @@ set "SLUGX64=%SLUGX64_NAME%.zip"
 set "DOCS=.\src\include\*GPL LICENCE.txt .\out\Doc"
 
 del /S /Q /F out\*.zip
-echo D | xcopy /DIY README.txt ".\out\Doc"
+echo D | xcopy /DIY README.* ".\out\Doc"
 echo D |xcopy /DIY CHANGELOG.txt ".\out\Doc"
 7z a -tzip "%SLUG%" ".\out\Win32\Release\%PLUGIN%.dll" %DOCS% -y
 7z a -tzip "%SLUGX64%" ".\out\Win64\Release\%PLUGIN%.dll" %DOCS% -y
