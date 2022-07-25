@@ -34,9 +34,9 @@ The `xdebug.remote_handler` property is obsolete as of version 2.9: https://2.xd
 Xdebug 2 can be configured according to the "SERVER SIDE INSTALL" section of [the original README][4], except the port number must be set explicitly:
 
     [xdebug]
-    xdebug.remote_port = 9000
+    xdebug.remote_port = 9003
 
-Alternatively, edit the plugin's configuration file at `<NPP_PLUGINS_DIRECTORY>\Config\dbgp.ini`:
+Alternatively, change the plugin's default port by editing the configuration file at `<NPP_PLUGINS_DIRECTORY>\Config\dbgp.ini`:
 
     [Misc]
     listen_port = 9000
