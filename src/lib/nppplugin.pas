@@ -34,6 +34,8 @@ uses
     function GetPluginsConfigDir: WideString;
     function SupportsDarkMode: Boolean; // needs N++ 8.0 or later
     function SupportsBigFiles: Boolean; // needs N++ 8.3 or later
+    function HasFullRangeApis: Boolean; // needs N++ 8.4.3 or later
+    function GetNppVersion: Cardinal;
     function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD): Integer; overload;
     function AddFuncItem(Name: nppString; Func: PFUNCPLUGINCMD;
       ShortcutKey: PShortcutKey): Integer; overload;
@@ -303,15 +305,28 @@ begin
   Result := self.FuncArray[DlgId].CmdID;
 end;
 
-/// since 8.0
-/// A return value of `true` means the NPPM_ADDTOOLBARICON_FORDARKMODE message is defined
-/// https://community.notepad-plus-plus.org/topic/21652/add-new-api-nppm_addtoolbaricon_fordarkmode-for-dark-mode
-function TNppPlugin.SupportsDarkMode: Boolean;
+function TNppPlugin.GetNppVersion: Cardinal;
 var
   NppVersion: Cardinal;
 begin
   NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 0, 0);
-  Result := HIWORD(NppVersion) >= 8;
+  // retrieve the zero-padded version, if available
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/ef609c896f209ecffd8130c3e3327ca8a8157e72
+  if ((HIWORD(NppVersion) > 8) or
+      ((HIWORD(NppVersion) = 8) and
+        (((LOWORD(NppVersion) >= 41) and (not (LOWORD(NppVersion) in [191, 192, 193]))) or
+          (LOWORD(NppVersion) in [5, 6, 7, 8, 9])))) then
+    NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 1, 0);
+
+  Result := NppVersion;
+end;
+
+/// since 8.0
+/// A return value of `true` means the NPPM_ADDTOOLBARICON_FORDARKMODE message is defined
+/// https://community.notepad-plus-plus.org/topic/21652/add-new-api-nppm_addtoolbaricon_fordarkmode-for-dark-mode
+function TNppPlugin.SupportsDarkMode: Boolean;
+begin
+  Result := HIWORD(GetNppVersion) >= 8;
 end;
 
 /// since 8.3
@@ -319,32 +334,33 @@ end;
 /// A return value of `true` means that x64 editors return 64-bit character and line positions,
 /// i.e., sizeof(Sci_Position) == sizeof(NativeInt), and sizeof(Sci_PositionU) == sizeof(SIZE_T)
 /// https://community.notepad-plus-plus.org/topic/22471/recompile-your-x64-plugins-with-new-header
-{$HINTS off}
 function TNppPlugin.SupportsBigFiles: Boolean;
-const
-  // Also check for N++ versions 8.1.9.1, 8.1.9.2 and 8.1.9.3
-  PatchReleases: Array[0..2] of Word = ( 191, 192, 193 );
 var
   NppVersion: Cardinal;
-  IsPatchRelease: Boolean;
-  i: Byte;
 begin
-  NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 0, 0);
-  IsPatchRelease := False;
-
-  for i := 0 to Length(PatchReleases) - 1 do
-  begin
-    IsPatchRelease := (LOWORD(NppVersion) = PatchReleases[i]);
-    if IsPatchRelease then Break;
-end;
-
+  NppVersion := GetNppVersion;
   Result :=
     (HIWORD(NppVersion) > 8) or
     ((HIWORD(NppVersion) = 8) and
       // 8.3 => 8,3 *not* 8,30
-      (((LOWORD(NppVersion) >= 3) and (LOWORD(NppVersion) <= 9)) or
-       ((LOWORD(NppVersion) > 21) and not IsPatchRelease)));
+      ((LOWORD(NppVersion) in [3, 4]) or
+       // Also check for N++ versions 8.1.9.1, 8.1.9.2 and 8.1.9.3
+       ((LOWORD(NppVersion) > 21) and (not (LOWORD(NppVersion) in [191, 192, 193])))));
 end;
-{$HINTS on}
+
+/// since 8.4.3
+/// A return value of `true` means the 64-bit APIs added in Scintilla 5.2.3 are available
+/// https://groups.google.com/g/scintilla-interest/c/mPLwYdC0-FE
+/// https://github.com/notepad-plus-plus/notepad-plus-plus/commit/ed4bb1a93e763001aac842698fcde0856ba8b0bc
+function TNppPlugin.HasFullRangeApis: Boolean;
+var
+  NppVersion: Cardinal;
+begin
+  NppVersion := GetNppVersion;
+  Result :=
+    (HIWORD(NppVersion) > 8) or
+    ((HIWORD(NppVersion) = 8) and
+       ((LOWORD(NppVersion) >= 43) and (not (LOWORD(NppVersion) in [191, 192, 193]))));
+end;
 
 end.

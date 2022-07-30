@@ -120,11 +120,34 @@ const
   NPPM_TRIGGERTABBARCONTEXTMENU = (NPPMSG + 49);
   //void NPPM_TRIGGERTABBARCONTEXTMENU(int view, int index2Activate);
   NPPM_GETNPPVERSION = (NPPMSG + 50);
-  // int NPPM_GETNPPVERSION(0, 0);
-  // return version
-  // ex : v4.7.5
-  // HIWORD(version); == 4
-  // LOWORD(version); == 75
+  // int NPPM_GETNPPVERSION(BOOL ADD_ZERO_PADDING, 0)
+  // Get Notepad++ version
+  // HIWORD(returned_value) is major part of version: the 1st number
+  // LOWORD(returned_value) is minor part of version: the 3 last numbers
+  //
+  // ADD_ZERO_PADDING == TRUE
+  //
+  // version  | HIWORD | LOWORD
+  //------------------------------
+  // 8.9.6.4  | 8      | 964
+  // 9        | 9      | 0
+  // 6.9      | 6      | 900
+  // 6.6.6    | 6      | 660
+  // 13.6.6.6 | 13     | 666
+  //
+  //
+  // ADD_ZERO_PADDING == FALSE
+  //
+  // version  | HIWORD | LOWORD
+  //------------------------------
+  // 8.9.6.4  | 8      | 964
+  // 9        | 9      | 0
+  // 6.9      | 6      | 9
+  // 6.6.6    | 6      | 66
+  // 13.6.6.6 | 13     | 666
+  //
+  // changed in 8.4.1
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/ef609c896f209ecffd8130c3e3327ca8a8157e72
   NPPM_HIDETABBAR = (NPPMSG + 51);
   // BOOL NPPM_HIDETABBAR(0, BOOL hideOrNot);
   // if hideOrNot is set as TRUE then tab bar will be hidden
@@ -346,6 +369,55 @@ const
   NPPM_GETCURRENTMACROSTATUS = (NPPMSG + 106);
   // MacroStatus NPPM_GETCURRENTMACROSTATUS(0, 0);
   // Gets current enum class MacroStatus { Idle - means macro is not in use and it's empty, RecordInProgress, RecordingStopped, PlayingBack }
+  NPPM_ISDARKMODEENABLED = (NPPMSG + 107);
+  // bool NPPM_ISDARKMODEENABLED(0, 0)
+  // Returns true when Notepad++ Dark Mode is enable, false when it is not.
+  // since 8.4.1
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/1eb5b10e41d7ab92b60aa32b28d4fe7739d15b53
+  NPPM_GETDARKMODECOLORS = (NPPMSG + 108);
+  // bool NPPM_GETDARKMODECOLORS (size_t cbSize, NppDarkMode::Colors* returnColors)
+  // - cbSize must be filled with sizeof(NppDarkMode::Colors).
+  // - returnColors must be a pre-allocated NppDarkMode::Colors struct.
+  // Returns true when successful, false otherwise.
+  // You need to uncomment the following code to use NppDarkMode::Colors structure:
+  //
+  // namespace NppDarkMode
+  // {
+  //  struct Colors
+  //  {
+  //    COLORREF background = 0;
+  //    COLORREF softerBackground = 0;
+  //    COLORREF hotBackground = 0;
+  //    COLORREF pureBackground = 0;
+  //    COLORREF errorBackground = 0;
+  //    COLORREF text = 0;
+  //    COLORREF darkerText = 0;
+  //    COLORREF disabledText = 0;
+  //    COLORREF linkText = 0;
+  //    COLORREF edge = 0;
+  //    COLORREF hotEdge = 0;
+  //    COLORREF disabledEdge = 0;
+  //  };
+  // }
+  //
+  // Note: in the case of calling failure ("false" is returned), you may need to change NppDarkMode::Colors structure to:
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/blob/master/PowerEditor/src/NppDarkMode.h#L32
+  // since 8.4.1
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/1eb5b10e41d7ab92b60aa32b28d4fe7739d15b53
+  NPPM_GETCURRENTCMDLINE = (NPPMSG + 109);
+  // INT NPPM_GETCURRENTCMDLINE(size_t strLen, TCHAR *commandLineStr)
+  // Get the Current Command Line string.
+  // Returns the number of TCHAR copied/to copy.
+  // Users should call it with commandLineStr as NULL to get the required number of TCHAR (not including the terminating nul character),
+  // allocate commandLineStr buffer with the return value + 1, then call it again to get the current command line string.
+  // since 8.4.2
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/0f8d5724afb0a540e8b4024252945ab60bc88c71
+  NPPM_CREATELEXER = (NPPMSG + 110);
+  // void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
+  // Returns the ILexer pointer created by Lexilla
+  // since 8.4.3
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/f1ed4de78dbe8f5d85f4d199bae2970148cca8ed
+
   VAR_NOT_RECOGNIZED = 0;
   FULL_CURRENT_PATH = 1;
   CURRENT_DIRECTORY = 2;
@@ -501,6 +573,14 @@ const
   //scnNotification->nmhdr.code = NPPN_FILEDELETED;
   //scnNotification->nmhdr.hwndFrom = hwndNpp;
   //scnNotification->nmhdr.idFrom = BufferID;
+  NPPN_DARKMODECHANGED = (NPPN_FIRST + 27); // To notify plugins that Dark Mode was enabled/disabled
+  //scnNotification->nmhdr.code = NPPN_DARKMODECHANGED;
+  //scnNotification->nmhdr.hwndFrom = hwndNpp;
+  //scnNotification->nmhdr.idFrom = 0;
+  NPPN_CMDLINEPLUGINMSG = (NPPN_FIRST + 28);  // To notify plugins that the new argument for plugins (via '-pluginMessage="YOUR_PLUGIN_ARGUMENT"' in command line) is available
+  //scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
+  //scnNotification->nmhdr.hwndFrom = hwndNpp;
+  //scnNotification->nmhdr.idFrom = pluginMessage; //where pluginMessage is pointer of type wchar_t
 
   MACRO_USER                = (WM_USER + 4000);
   WM_ISCURRENTMACRORECORDED = (MACRO_USER + 01);
