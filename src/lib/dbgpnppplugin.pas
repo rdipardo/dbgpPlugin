@@ -115,6 +115,7 @@ uses
 
 procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
 var
+  SciTextRangeMsg: Cardinal;
   x:^TToolbarIcons;
   tr: TSciTextRange;
   s: string;
@@ -158,9 +159,14 @@ begin
 
     if (tr.chrg.cpMin<>-1) and (tr.chrg.cpMax-tr.chrg.cpMin>0) then
     begin
+      if Self.HasFullRangeApis then
+          SciTextRangeMsg := SCI_GETTEXTRANGEFULL
+        else
+          SciTextRangeMsg := SCI_GETTEXTRANGE;
+      end;
       SetLength(s, tr.chrg.cpMax-tr.chrg.cpMin+10);
       tr.lpstrText := PAnsiChar(UTF8Encode(s));
-      SendMessage(Npp.NppData.ScintillaMainHandle, SCI_GETTEXTRANGE, 0, LPARAM(@tr));
+      SendMessage(Npp.NppData.ScintillaMainHandle, SciTextRangeMsg, 0, LPARAM(@tr));
       SetString(s, PAnsiChar(tr.lpstrText), StrLen(PAnsiChar(tr.lpstrText)));
       pzS := PAnsiChar(UTF8Encode(s));
       SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(pzS+' = Getting...'));
