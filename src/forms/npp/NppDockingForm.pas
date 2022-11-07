@@ -45,12 +45,12 @@ type
     property OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
   public
     { Public declarations }
-    DlgId: Integer;
-    CmdId: Integer;    
+    CmdId, DlgId: Integer;
     constructor Create(NppParent: TNppPlugin; DlgId: Integer); reintroduce;
       overload; virtual;
     constructor Create(AOwner: TNppForm; DlgId: Integer); reintroduce;
       overload; virtual;
+    destructor Destroy; override;
     procedure Show;
     procedure Hide;
     /// NOTE.
@@ -85,9 +85,22 @@ begin
   self.RemoveControlParent(self);
 end;
 
+destructor TNppDockingForm.Destroy;
+begin
+  with (self.ToolbarData) do
+  begin
+    if Assigned(Title) then
+      Dispose(Title);
+    if Assigned(ModuleName) then
+      Dispose(ModuleName);
+    if Assigned(AdditionalInfo) then
+      Dispose(AdditionalInfo);
+  end;
+  inherited;
+end;
+
 procedure TNppDockingForm.OnWM_NOTIFY(var msg: TWMNotify);
 begin
-  // not good.. bols ce bi vse spremenil v TComponent in uporablal Parenta..
   if (self.Npp.NppData.NppHandle <> msg.NMHdr.hwndFrom) then
   begin
     inherited;
@@ -117,6 +130,9 @@ end;
 procedure TNppDockingForm.RegisterDockingForm
   (MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
 begin
+  if (not Assigned(self.Npp)) then
+    exit;
+
   self.HandleNeeded;
   FillChar(self.ToolbarData, sizeof(TToolbarData), 0);
 
@@ -142,8 +158,8 @@ begin
   GetModuleFileNameW(HInstance, self.ToolbarData.ModuleName, MAX_PATH);
   if GetLastError = ERROR_SUCCESS then
   begin
-    StringToWideChar(ExtractFileName(self.ToolbarData.ModuleName),
-      self.ToolbarData.ModuleName, MAX_PATH);
+    StrPLCopy(self.ToolbarData.ModuleName,
+      ExtractFileName(self.ToolbarData.ModuleName), MAX_PATH);
     StringToWideChar('', self.ToolbarData.AdditionalInfo, 1);
   end;
   SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0,
@@ -153,6 +169,9 @@ end;
 
 procedure TNppDockingForm.Show;
 begin
+  if (not Assigned(self.Npp)) then
+    exit;
+
   SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMSHOW, 0,
     LPARAM(self.Handle));
   inherited;
@@ -161,13 +180,16 @@ end;
 
 procedure TNppDockingForm.Hide;
 begin
+  if (not Assigned(self.Npp)) then
+    exit;
+
   SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMHIDE, 0,
     LPARAM(self.Handle));
   self.DoHide;
 end;
 
 // This hack prevents the Win Dialog default procedure from an endless loop while
-// looking for the prevoius component, while in a floating state.
+// looking for the previous component, while in a floating state.
 // I still don't know why the pointer climbs up to the docking dialog that holds this one
 // but this works for now.
 procedure TNppDockingForm.RemoveControlParent(control: TControl);
@@ -200,6 +222,9 @@ end;
 
 procedure TNppDockingForm.UpdateDisplayInfo(Info: String);
 begin
+  if (not Assigned(self.Npp)) then
+    exit;
+
   StringToWideChar(Info, self.ToolbarData.AdditionalInfo, MAX_PATH);
   SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMUPDATEDISPINFO, 0,
     LPARAM(self.Handle));

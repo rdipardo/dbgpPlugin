@@ -2,11 +2,14 @@ inherited DebugEditWatchForm: TDebugEditWatchForm
   Left = 248
   Top = 143
   Caption = 'Add watch'
-  ClientHeight = 61
-  Constraints.MaxHeight = 100
-  Constraints.MinHeight = 100
+  ClientHeight = 73
+  ClientWidth = 349
+  Constraints.MaxHeight = 112
+  Constraints.MinHeight = 112
   OldCreateOrder = True
-  ExplicitHeight = 100
+  Position = poDesktopCenter
+  ExplicitWidth = 365
+  ExplicitHeight = 112
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -17,15 +20,15 @@ inherited DebugEditWatchForm: TDebugEditWatchForm
     Caption = 'Expression:'
   end
   object Expression: TEdit
-    Left = 64
+    Left = 68
     Top = 8
-    Width = 273
+    Width = 275
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
   end
   object Button1: TButton
-    Left = 264
+    Left = 255
     Top = 40
     Width = 75
     Height = 25
@@ -36,7 +39,7 @@ inherited DebugEditWatchForm: TDebugEditWatchForm
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 184
+    Left = 175
     Top = 40
     Width = 75
     Height = 25

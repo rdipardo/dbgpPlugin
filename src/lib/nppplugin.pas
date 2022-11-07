@@ -61,8 +61,8 @@ uses
 
     // df
     function DoOpen(filename: WideString): boolean; overload;
-    function DoOpen(filename: WideString; Line: Integer): boolean; overload;
-    procedure GetFileLine(var filename: String; var Line: Integer);
+    function DoOpen(filename: WideString; Line: Sci_Position): boolean; overload;
+    procedure GetFileLine(var filename: String; var Line: Sci_Position);
     procedure GetOpenFiles(files: TStrings);
     function GetWord: string;
   end;
@@ -112,7 +112,7 @@ var
 begin
   i := Length(self.FuncArray);
   SetLength(self.FuncArray, i + 1);
-  StringToWideChar(Name, self.FuncArray[i].ItemName, 1000);
+  StrPLCopy(self.FuncArray[i].ItemName, Name, 1000);
   self.FuncArray[i].Func := Func;
   self.FuncArray[i].ShortcutKey := nil;
   Result := i;
@@ -124,7 +124,6 @@ var
   i: Integer;
 begin
   i := self.AddFuncItem(Name, Func);
-  New(self.FuncArray[i].ShortcutKey);
   self.FuncArray[i].ShortcutKey := ShortcutKey;
   Result := i;
 end;
@@ -142,10 +141,10 @@ begin
   end;
 end;
 
-procedure TNppPlugin.GetFileLine(var filename: String; var Line: Integer);
+procedure TNppPlugin.GetFileLine(var filename: String; var Line: Sci_Position);
 var
   s: String;
-  r: Integer;
+  r: Sci_Position;
 begin
   s := '';
   SetLength(s, 300);
@@ -174,6 +173,7 @@ function TNppPlugin.GetPluginsConfigDir: WideString;
 var
   s: string;
 begin
+  s := '';
   SetLength(s, 1001);
   SendMessage(self.NppData.NppHandle, NPPM_GETPLUGINSCONFIGDIR, 1000,
     LPARAM(PChar(s)));
@@ -267,6 +267,7 @@ function TNppPlugin.GetWord: string;
 var
   s: string;
 begin
+  s := '';
   SetLength(s, 800);
   SendMessage(self.NppData.NppHandle, NPPM_GETCURRENTWORD, 0, LPARAM(PChar(s)));
   Result := s;
@@ -278,6 +279,7 @@ var
   s: string;
 begin
   // ask if we are not already opened
+  s := '';
   SetLength(s, 500);
   r := SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
     LPARAM(PChar(s)));
@@ -290,7 +292,7 @@ begin
   Result := (r = 0);
 end;
 
-function TNppPlugin.DoOpen(filename: WideString; Line: Integer): Boolean;
+function TNppPlugin.DoOpen(filename: WideString; Line: Sci_Position): Boolean;
 var
   r: Boolean;
 begin

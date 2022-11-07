@@ -95,7 +95,9 @@ begin
 end;
 
 procedure TNppForm.RegisterForm();
-  begin
+begin
+  if (not Assigned(self.Npp)) then
+    exit;
   // "For each created dialog in your plugin, you should register it (and
   // unregister while destroy it) to Notepad++ by using this message. If
   // this message is ignored, then your dialog won't react with the key
