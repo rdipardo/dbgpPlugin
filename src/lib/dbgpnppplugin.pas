@@ -120,7 +120,7 @@ var
   tr: TSciTextRange;
   s: string;
   pzS: PAnsiChar;
-  i: integer;
+  i: Sci_Position;
 begin
   if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) then
   begin
@@ -163,7 +163,6 @@ begin
           SciTextRangeMsg := SCI_GETTEXTRANGEFULL
         else
           SciTextRangeMsg := SCI_GETTEXTRANGE;
-      end;
       SetLength(s, tr.chrg.cpMax-tr.chrg.cpMin+10);
       tr.lpstrText := PAnsiChar(UTF8Encode(s));
       SendMessage(Npp.NppData.ScintillaMainHandle, SciTextRangeMsg, 0, LPARAM(@tr));

@@ -290,7 +290,7 @@ end;
 
 procedure TNppDockingForm1.sockDbgpInit(Sender: TDbgpWinSocket; init: TInit);
 var
-  i,j,oldl,newl: integer;
+  i,j,oldl,newl: Sci_Position;
   tmp: TStringList;
   oldf: string;
   n: TNotifyEvent;
@@ -387,7 +387,7 @@ end;
 procedure TNppDockingForm1.sockDbgpBreakpoints(Sender: TDbgpWinSocket;
   breakpoints: TBreakpoints);
 var
-  i,j,oldl: integer;
+  i,j,oldl: Sci_Position;
   filename: string;
   tmp: TStringList;
 begin
@@ -527,7 +527,7 @@ end;
 procedure TNppDockingForm1.BitBtnRunToClick(Sender: TObject);
 var
   s: string;
-  i: integer;
+  i: Sci_Position;
   bp: TBreakpoint;
 begin
   self.Npp.GetFileLine(s,i);
@@ -545,7 +545,7 @@ end;
 procedure TNppDockingForm1.BitBtnBreakpointClick(Sender: TObject);
 var
   s: string;
-  i: integer;
+  i: Sci_Position;
 begin
   self.Npp.GetFileLine(s,i);
   self.ToggleBreakpoint(s,i+1);
@@ -714,7 +714,7 @@ procedure TNppDockingForm1.BreakpointDelete(Sender: TComponent;
   bp: TBreakpoint);
 var
   s: string;
-  i: integer;
+  i: Sci_Position;
 begin
   // @todo: change view to file and back
   self.Npp.GetFileLine(s,i);
