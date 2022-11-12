@@ -146,8 +146,7 @@ begin
 
   self.ToolbarData.DlgId := self.DlgId;
   self.ToolbarData.Mask := MaskStyle;
-
-  self.ToolbarData.Mask := self.ToolbarData.Mask or DWS_ADDINFO;
+  self.ToolbarData.Mask := self.ToolbarData.Mask or DWS_ADDINFO or DWS_USEOWNDARKMODE;
 
   GetMem(self.ToolbarData.Title, MAX_PATH * sizeof(nppPChar));
   GetMem(self.ToolbarData.ModuleName, MAX_PATH * sizeof(nppPChar));
