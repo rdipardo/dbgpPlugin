@@ -41,8 +41,20 @@ Alternatively, change the plugin's default port by editing the configuration fil
     [Misc]
     listen_port = 9000
 
+Known Issues
+------------
 
-[0]: https://github.com/notepad-plus-plus/notepad-plus-plus/issues/11104#issuecomment-1030729901
+* Re-positioning the debugger panel too many times may cause an infinite redraw loop, hanging Notepad++.
+  This could simply be a race condition, or a limitation of [how `NPPM_DMMSHOW` is implemented][5].
+  Independent bug reports found [here][6] and [here][7] suggest that it's a longstanding problem, and probably
+  not unique to DBGp
+
+* Tooltips are not always destroyed completely, leaving hollow outlines on the screen
+
+[0]: https://community.notepad-plus-plus.org/topic/22772/new-cross-platform-plugin-template-for-delphi-developers/3
 [1]: https://github.com/zobo/dbgpPlugin/issues/1#issuecomment-770746125
 [2]: https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug
-[4]: https://bitbucket.org/rdipardo/dbgp/src/default/README.orig.txt
+[4]: https://bitbucket.org/rdipardo/dbgp/raw/bf0577b6c621063ff1b82d220afcc32eea9c930e/README.orig.txt
+[5]: https://community.notepad-plus-plus.org/topic/13116/creating-a-docked-window-from-a-background-thread
+[6]: https://sourceforge.net/p/notepad-plus/discussion/482781/thread/ab626469
+[7]: https://community.notepad-plus-plus.org/topic/23667/npp-got-stuck-after-rearranging-dialogs

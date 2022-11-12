@@ -103,6 +103,7 @@ procedure TNppDockingForm.OnWM_NOTIFY(var msg: TWMNotify);
 begin
   if (self.Npp.NppData.NppHandle <> msg.NMHdr.hwndFrom) then
   begin
+    self.RemoveControlParent(self);
     inherited;
     exit;
   end;
@@ -124,7 +125,6 @@ begin
     if Assigned(FOnDock) then
       FOnDock(self);
   end;
-  inherited;
 end;
 
 procedure TNppDockingForm.RegisterDockingForm
