@@ -55,6 +55,7 @@ object DebugRawForm1: TDebugRawForm1
   end
   object JvDockClient1: TJvDockClient
     DirectDrag = False
+    ShowHint = False
     LeftDock = False
     TopDock = False
     RightDock = False

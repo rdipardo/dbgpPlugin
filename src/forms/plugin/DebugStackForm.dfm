@@ -72,6 +72,7 @@ object DebugStackForm1: TDebugStackForm1
   end
   object JvDockClient1: TJvDockClient
     DirectDrag = False
+    ShowHint = False
     EnableCloseButton = False
     LeftDock = False
     TopDock = False

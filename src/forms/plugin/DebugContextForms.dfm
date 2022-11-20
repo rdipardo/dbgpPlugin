@@ -4,6 +4,9 @@ inherited DebugContextForm: TDebugContextForm
   OldCreateOrder = True
   PixelsPerInch = 96
   TextHeight = 13
+  inherited JvDockClient1: TJvDockClient
+    ShowHint = False
+  end
   inherited PopupMenu1: TPopupMenu
     object Refresh1: TMenuItem [0]
       Caption = 'Refresh'

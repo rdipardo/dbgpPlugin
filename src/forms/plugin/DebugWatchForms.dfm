@@ -3,6 +3,9 @@ inherited DebugWatchFrom: TDebugWatchFrom
   OldCreateOrder = True
   PixelsPerInch = 96
   TextHeight = 13
+  inherited JvDockClient1: TJvDockClient
+    ShowHint = False
+  end
   inherited PopupMenu1: TPopupMenu
     object AddWatch1: TMenuItem [0]
       Caption = 'Add watch'

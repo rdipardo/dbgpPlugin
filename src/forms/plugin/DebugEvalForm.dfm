@@ -3,10 +3,10 @@ object DebugEvalForm1: TDebugEvalForm1
   Top = 111
   ActiveControl = ComboBox1
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsSizeToolWin
+  BorderStyle = bsToolWindow
   Caption = 'Eval'
-  ClientHeight = 61
-  ClientWidth = 333
+  ClientHeight = 71
+  ClientWidth = 343
   Color = clBtnFace
   Constraints.MaxHeight = 100
   Constraints.MinHeight = 100
@@ -16,13 +16,14 @@ object DebugEvalForm1: TDebugEvalForm1
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   DesignSize = (
-    333
-    61)
+    343
+    71)
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
-    Left = 160
+    Left = 170
     Top = 40
     Width = 75
     Height = 25
@@ -34,7 +35,7 @@ object DebugEvalForm1: TDebugEvalForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 248
+    Left = 258
     Top = 40
     Width = 75
     Height = 25
@@ -46,7 +47,7 @@ object DebugEvalForm1: TDebugEvalForm1
   object ComboBox1: TComboBox
     Left = 8
     Top = 8
-    Width = 313
+    Width = 323
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
