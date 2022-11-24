@@ -47,14 +47,16 @@ type
     Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
-    Label19: TLabel;
-    Label20: TLabel;
-    Label21: TLabel;
     Label22: TLabel;
     Label23: TLabel;
     Label24: TLabel;
+    lblRepoURL: TLabel;
+    GroupBox2: TGroupBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure lblRepoURLClick(Sender: TObject);
+    procedure lblRepoURLMouseEnter(Sender: TObject);
+    procedure lblRepoURLMouseLeave(Sender: TObject);
   private
     { Private declarations }
     procedure GetVersion(FileName: string; var VerMajor, VerMinor, VerRelease, VerBuild: integer);
@@ -66,6 +68,8 @@ var
   AboutForm1: TAboutForm1;
 
 implementation
+
+uses ShellAPI;
 
 {$R *.dfm}
 
@@ -79,8 +83,8 @@ const
   bits: string = '('+{$IFDEF CPUx64}'64'{$ELSE}'32'{$ENDIF}+'-bit)';
   minNppVersion: string =
     {$IFDEF CPUx64}
-    {$IFNDEF NPP_NO_HUGE_FILES}'8.3'{$ELSE}'4.1'{$ENDIF}
-    {$ELSE}'4.1'{$ENDIF}+'+';
+    {$IFNDEF NPP_NO_HUGE_FILES}'8.3'{$ELSE}'7.7'{$ENDIF}
+    {$ELSE}'7.7'{$ENDIF}+'+';
 var
   path: string;
   i: cardinal;
@@ -117,6 +121,22 @@ begin
     end;
   end;
   FreeMem(VerInfo, VerInfoSize);
+end;
+
+procedure TAboutForm1.lblRepoURLClick(Sender: TObject);
+begin
+  ShellAPI.ShellExecute(0, 'Open', PChar(lblRepoURL.Caption), Nil, Nil, SW_SHOWNORMAL);
+  Close;
+end;
+
+procedure TAboutForm1.lblRepoURLMouseEnter(Sender: TObject);
+begin
+  lblRepoURL.Cursor := crHandPoint;
+end;
+
+procedure TAboutForm1.lblRepoURLMouseLeave(Sender: TObject);
+begin
+  lblRepoURL.Cursor := crDefault;
 end;
 
 end.

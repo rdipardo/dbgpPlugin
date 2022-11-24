@@ -31,48 +31,6 @@ object AboutForm1: TAboutForm1
     Caption = 'DBGP Plugin v%d.%d.%d %s for Notepad++ v%s'
     ExplicitWidth = 228
   end
-  object Label8: TLabel
-    Left = 8
-    Top = 32
-    Width = 34
-    Height = 13
-    Caption = 'Author:'
-  end
-  object Label9: TLabel
-    Left = 8
-    Top = 48
-    Width = 22
-    Height = 13
-    Caption = 'Mail:'
-  end
-  object Label18: TLabel
-    Left = 63
-    Top = 32
-    Width = 101
-    Height = 13
-    Caption = 'Damjan Zobo Cvetko'
-  end
-  object Label19: TLabel
-    Left = 64
-    Top = 48
-    Width = 88
-    Height = 13
-    Caption = 'zobo@users.sf.net'
-  end
-  object Label20: TLabel
-    Left = 8
-    Top = 72
-    Width = 222
-    Height = 13
-    Caption = 'Thanks go out to Don for this editor and all that'
-  end
-  object Label21: TLabel
-    Left = 8
-    Top = 88
-    Width = 140
-    Height = 13
-    Caption = 'helped in one way or another.'
-  end
   object Label22: TLabel
     Left = 8
     Top = 280
@@ -208,6 +166,51 @@ object AboutForm1: TAboutForm1
       Width = 86
       Height = 13
       Caption = 'Toggle breakpoint'
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 8
+    Top = 19
+    Width = 233
+    Height = 87
+    TabOrder = 2
+    object Label18: TLabel
+      Left = 35
+      Top = 8
+      Width = 167
+      Height = 13
+      Alignment = taCenter
+      Caption = #169' 2007-2012 Damjan Zobo Cvetko'
+    end
+    object Label8: TLabel
+      Left = 58
+      Top = 27
+      Width = 115
+      Height = 13
+      Alignment = taCenter
+      Caption = #169' 2022 Robert Di Pardo'
+    end
+    object Label9: TLabel
+      Left = 18
+      Top = 46
+      Width = 202
+      Height = 13
+      Alignment = taCenter
+      Caption = 'Licensed under the GPLv3 and LGPLv3'
+    end
+    object lblRepoURL: TLabel
+      Left = 35
+      Top = 65
+      Width = 170
+      Height = 13
+      Hint = 'View source code'
+      Alignment = taCenter
+      Caption = 'https://bitbucket.org/rdipardo/dbgp'
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = lblRepoURLClick
+      OnMouseEnter = lblRepoURLMouseEnter
+      OnMouseLeave = lblRepoURLMouseLeave
     end
   end
 end
