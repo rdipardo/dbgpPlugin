@@ -79,7 +79,9 @@ type
     procedure sockDbgpEval(Sender: TDbgpWinSocket; context: Integer; list: TPropertyItems);
     procedure sockDbgpContext(Sender: TDbgpWinSocket; context: Integer; list: TPropertyItems);
     procedure sockDbgpBreak(Sender: TDbgpWinSocket; Stopped: Boolean);
+{$IFNDEF RELEASE}
     procedure sockDbgpStream(Sender: TDbgpWinSocket; stream, data:String);
+{$ENDIF}
     procedure sockDbgpBreakpoints(Sender: TDbgpWinSocket; breakpoints: TBreakpoints);
 
     procedure ContextOnRefresh(Sender: TObject);
@@ -293,7 +295,6 @@ var
   i,j,oldl,newl: Sci_Position;
   tmp: TStringList;
   oldf: string;
-  n: TNotifyEvent;
 begin
   self.SetState(Sender.state);
   self.UpdateConfig;
@@ -628,12 +629,14 @@ begin
   self.DebugRawForm1.Show;
 end;
 
+{$IFNDEF RELEASE}
 { test stream }
 procedure TNppDockingForm1.sockDbgpStream(Sender: TDbgpWinSocket; stream,
   data: String);
 begin
   self.DebugRawForm1.Memo1.Lines.Add(stream+': '+data);
 end;
+{$ENDIF}
 
 { set enable buttons and stuff }
 procedure TNppDockingForm1.SetState(state: TDbgpState);
@@ -642,7 +645,7 @@ var
 begin
   self.state := state;
 
-  stepping := false; evaling := false; breaking := false;
+  stepping := false; evaling := false;
 
   case state of
   dsStarting: begin stepping := true;{ breaking := true;} end;

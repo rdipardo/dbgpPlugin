@@ -1,3 +1,10 @@
+2022-12-04 v0.14
+
+*** First generally available 64-bit version ***
+Changed API calling logic to dynamically use the full-range variants in Notepad++ 8.4.3 and later.
+Tried to mitigate an issue where moving a docked panel may cause an infinite redraw loop.
+Tried to mitigate an issue where tooltips are not always completely destroyed.
+
 2022-07-24 v0.14 alpha-2
 
 Changed default port to 9003, same as Xdebug 3

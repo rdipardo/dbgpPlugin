@@ -185,8 +185,10 @@ type
     function SendCommand(Cmd: String; Args: String; Base64:String): Integer; overload;
     function SendCommand(Cmd: String; Args: String): Integer; overload;
     function SendCommand(Cmd: String): Integer; overload;
+{$IFNDEF RELEASE}
   published
     { Published declarations }
+{$ENDIF}
     property Init: TInit read Finit;
     property OnDbgpStack: TStackCB read FOnDbgpStack write FOnDbgpStack;
     property OnDbgpBreak: TBreakCB read FOnDbgpBreak write FOnDbgpBreak;

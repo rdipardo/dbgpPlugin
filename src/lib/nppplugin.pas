@@ -281,7 +281,7 @@ begin
   // ask if we are not already opened
   s := '';
   SetLength(s, 500);
-  r := SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
+  SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
     LPARAM(PChar(s)));
   SetString(s, PChar(s), StrLen(PChar(s)));
   Result := true;
