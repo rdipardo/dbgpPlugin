@@ -1,8 +1,8 @@
 {$IFNDEF SCINTILLA_INC}
 {$DEFINE SCINTILLA_INC}
 {
-  Object Pascal definitions for Scintilla 5.2.3
-  https://github.com/notepad-plus-plus/notepad-plus-plus/commit/ed4bb1a93e763001aac842698fcde0856ba8b0bc
+  Object Pascal definitions for Scintilla 5.3.2
+  https://github.com/notepad-plus-plus/notepad-plus-plus/commit/fc61868cf2e317bfb7384502f80b6476fda6ddc8
 
   Copyright (c) 2022 Robert Di Pardo <dipardo.r@gmail.com>
   Distributed under the terms of the GNU Lesser General Public License Version 3.0 or later
@@ -11,40 +11,40 @@ type
   { scintilla/include/Sci_Position.h }
 {$IF DEFINED(NPP_NO_HUGE_FILES) AND DEFINED(CPUx64)}
 {$MESSAGE 'Plugin will be compatible with Npp <= 8.2.1 *only*'}
-  Sci_Position = Integer;
-  Sci_PositionU = UINT;
+  Sci_Position = LongInt;
+  Sci_PositionU = Cardinal;
 {$ELSE}
 {$IFDEF CPUx64}{$MESSAGE 'Plugin will be compatible with Npp 8.3+ *only*'}{$ENDIF}
   Sci_Position = NativeInt;
-  Sci_PositionU = SIZE_T;
+  Sci_PositionU = NativeUInt;
 {$ENDIF}
 
  { scintilla/include/Scintilla.h }
   uptr_t = NativeUInt;
   sptr_t = NativeInt;
-  TScintillaMessageFnc = function(ptr : sptr_t; Msg: UINT; wParam: uptr_t; lParam : sptr_t) : sptr_t; cdecl;
-  SciFnDirectStatus = function(ptr: sptr_t; Msg: UINT; wParam: uptr_t; lParam: sptr_t; pStatus: PInteger) : sptr_t; cdecl;
+  TScintillaMessageFnc = function(ptr : sptr_t; Msg: Cardinal; wParam: uptr_t; lParam : sptr_t) : sptr_t; cdecl;
+  SciFnDirectStatus = function(ptr: sptr_t; Msg: Cardinal; wParam: uptr_t; lParam: sptr_t; pStatus: PInteger) : sptr_t; cdecl;
   SciFnDirect = TScintillaMessageFnc;
 
   TNotifyHeader = record
     hwndFrom : HWND;
     idFrom : uptr_t;
-    code : UINT;
+    code : Cardinal;
   end;
 
   TSciNotification = record
     nmhdr               : TNotifyHeader;
-    position            : Sci_Position; // SCN_STYLENEEDED, SCN_MODIFIED
+    position            : NativeInt;    // SCN_STYLENEEDED, SCN_MODIFIED
     ch                  : Integer;      // SCN_CHARADDED, SCN_KEY
     modifiers           : Integer;      // SCN_KEY
     modificationType    : Integer;      // SCN_MODIFIED
     text                : PChar;        // SCN_MODIFIED
-    length              : Sci_Position; // SCN_MODIFIED
-    linesAdded          : Sci_Position; // SCN_MODIFIED
+    length              : NativeInt;    // SCN_MODIFIED
+    linesAdded          : NativeInt;    // SCN_MODIFIED
     message             : Integer;      // SCN_MACRORECORD
     wParam              : uptr_t;       // SCN_MACRORECORD
     lParam              : sptr_t;       // SCN_MACRORECORD
-    line                : Sci_Position; // SCN_MODIFIED
+    line                : NativeInt;    // SCN_MODIFIED
     foldLevelNow        : Integer;      // SCN_MODIFIED
     foldLevelPrev       : Integer;      // SCN_MODIFIED
     margin              : Integer;      // SCN_MARGINCLICK
@@ -52,7 +52,7 @@ type
     x                   : Integer;      // SCN_DWELLSTART, SCN_DWELLEND
     y                   : Integer;      // SCN_DWELLSTART, SCN_DWELLEND
     token               : Integer;      // SCN_MODIFIED with SC_MOD_CONTAINER
-    annotationLinesAdded: Sci_Position; // SCN_MODIFIED with SC_MOD_CHANGEANNOTATION
+    annotationLinesAdded: NativeInt;    // SCN_MODIFIED with SC_MOD_CHANGEANNOTATION
     updated             : Integer;      // SCN_UPDATEUI
     listCompletionMethod: Integer;      // SCN_AUTOCSELECTION, SCN_AUTOCCOMPLETED, SCN_USERLISTSELECTION
     characterSource     : Integer;      // SCN_CHARADDED
@@ -180,6 +180,7 @@ const
   SCI_SELECTALL = 2013;
   SCI_SETSAVEPOINT = 2014;
   SCI_GETSTYLEDTEXT = 2015;
+  SCI_GETSTYLEDTEXTFULL = 2778;
   SCI_CANREDO = 2016;
   SCI_MARKERLINEFROMHANDLE = 2017;
   SCI_MARKERDELETEHANDLE = 2018;
@@ -269,7 +270,12 @@ const
   SC_MARK_RGBAIMAGE = 30;
   SC_MARK_BOOKMARK = 31;
   SC_MARK_VERTICALBOOKMARK = 32;
+  SC_MARK_BAR = 33;
   SC_MARK_CHARACTER = 10000;
+  SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN = 21;
+  SC_MARKNUM_HISTORY_SAVED = 22;
+  SC_MARKNUM_HISTORY_MODIFIED = 23;
+  SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED = 24;
   SC_MARKNUM_FOLDEREND = 25;
   SC_MARKNUM_FOLDEROPENMID = 26;
   SC_MARKNUM_FOLDERMIDTAIL = 27;
@@ -392,6 +398,8 @@ const
   SCI_STYLESETHOTSPOT = 2409;
   SCI_STYLESETCHECKMONOSPACED = 2254;
   SCI_STYLEGETCHECKMONOSPACED = 2255;
+  SCI_STYLESETINVISIBLEREPRESENTATION = 2256;
+  SCI_STYLEGETINVISIBLEREPRESENTATION = 2257;
   SC_ELEMENT_LIST = 0;
   SC_ELEMENT_LIST_BACK = 1;
   SC_ELEMENT_LIST_SELECTED = 2;
@@ -470,7 +478,8 @@ const
   INDIC_POINTCHARACTER = 19;
   INDIC_GRADIENT = 20;
   INDIC_GRADIENTCENTRE = 21;
-  INDIC_EXPLORERLINK = 22;
+  INDIC_POINT_TOP = 22;
+  INDIC_EXPLORERLINK = 23;
   INDIC_CONTAINER = 8;
   INDIC_IME = 32;
   INDIC_IME_MAX = 35;
@@ -478,7 +487,15 @@ const
   INDICATOR_CONTAINER = 8;
   INDICATOR_IME = 32;
   INDICATOR_IME_MAX = 35;
-  INDICATOR_MAX = 35;
+  INDICATOR_HISTORY_REVERTED_TO_ORIGIN_INSERTION = 36;
+  INDICATOR_HISTORY_REVERTED_TO_ORIGIN_DELETION = 37;
+  INDICATOR_HISTORY_SAVED_INSERTION = 38;
+  INDICATOR_HISTORY_SAVED_DELETION = 39;
+  INDICATOR_HISTORY_MODIFIED_INSERTION = 40;
+  INDICATOR_HISTORY_MODIFIED_DELETION =41;
+  INDICATOR_HISTORY_REVERTED_TO_MODIFIED_INSERTION = 42;
+  INDICATOR_HISTORY_REVERTED_TO_MODIFIED_DELETION = 43;
+  INDICATOR_MAX = 43;
   SCI_INDICSETSTYLE = 2080;
   SCI_INDICGETSTYLE = 2081;
   SCI_INDICSETFORE = 2082;
@@ -595,6 +612,12 @@ const
   SCI_FINDTEXTFULL = 2196;
   SCI_FORMATRANGE = 2151;
   SCI_FORMATRANGEFULL = 2777;
+  SC_CHANGE_HISTORY_DISABLED = 0;
+  SC_CHANGE_HISTORY_ENABLED = 1;
+  SC_CHANGE_HISTORY_MARKERS = 2;
+  SC_CHANGE_HISTORY_INDICATORS = 4;
+  SCI_SETCHANGEHISTORY = 2780;
+  SCI_GETCHANGEHISTORY = 2781;
   SCI_GETFIRSTVISIBLELINE = 2152;
   SCI_GETLINE = 2153;
   SCI_GETLINECOUNT = 2154;
@@ -609,6 +632,7 @@ const
   SCI_GETTEXTRANGE = 2162;
   SCI_GETTEXTRANGEFULL = 2039;
   SCI_HIDESELECTION = 2163;
+  SCI_GETSELECTIONHIDDEN = 2088;
   SCI_POINTXFROMPOSITION = 2164;
   SCI_POINTYFROMPOSITION = 2165;
   SCI_LINEFROMPOSITION = 2166;
@@ -651,6 +675,7 @@ const
   SCI_TARGETWHOLEDOCUMENT = 2690;
   SCI_REPLACETARGET = 2194;
   SCI_REPLACETARGETRE = 2195;
+  SCI_REPLACETARGETMINIMAL = 2779;
   SCI_SEARCHINTARGET = 2197;
   SCI_SETSEARCHFLAGS = 2198;
   SCI_GETSEARCHFLAGS = 2199;
@@ -695,6 +720,7 @@ const
   SC_FOLDACTION_CONTRACT = 0;
   SC_FOLDACTION_EXPAND = 1;
   SC_FOLDACTION_TOGGLE = 2;
+  SC_FOLDACTION_CONTRACT_EVERY_LEVEL = 4;
   SCI_FOLDLINE = 2237;
   SCI_FOLDCHILDREN = 2238;
   SCI_EXPANDCHILDREN = 2239;
@@ -1333,6 +1359,7 @@ const
   SC_AC_TAB = 3;
   SC_AC_NEWLINE = 4;
   SC_AC_COMMAND = 5;
+  SC_AC_SINGLE_CHOICE = 6;
   SC_CHARACTERSOURCE_DIRECT_INPUT = 0;
   SC_CHARACTERSOURCE_TENTATIVE_INPUT = 1;
   SC_CHARACTERSOURCE_IME_RESULT = 2;
