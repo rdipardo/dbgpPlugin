@@ -15,6 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+{$MINENUMSIZE 4}
 
 const
   NPPMSG = (WM_USER + 1000);
@@ -100,8 +101,10 @@ const
   // if windowName is NULL, then the first found window handle which matches with the moduleName will be returned
   NPPM_MAKECURRENTBUFFERDIRTY = (NPPMSG + 44);
   //BOOL NPPM_MAKECURRENTBUFFERDIRTY(0, 0);
-  NPPM_GETENABLETHEMETEXTUREFUNC = (NPPMSG + 45);
-  //BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0);
+  NPPM_GETENABLETHEMETEXTUREFUNC_DEPRECATED = (NPPMSG + 45);
+  //BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0) -- DEPRECATED : use EnableThemeDialogTexture from uxtheme.h instead
+  // since 8.4.9
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/50e95d22675b86b6afeacb6fdc217a0011f9528e
   NPPM_GETPLUGINSCONFIGDIR = (NPPMSG + 46);
   //INT NPPM_GETPLUGINSCONFIGDIR(int strLen, TCHAR *str);
   // Get user's plugin config directory path. It's useful if plugins want to save/load parameters for the current user
@@ -413,10 +416,16 @@ const
   // since 8.4.2
   // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/0f8d5724afb0a540e8b4024252945ab60bc88c71
   NPPM_CREATELEXER = (NPPMSG + 110);
-  // void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
+  // void* NPPM_CREATELEXER(0, const TCHAR *lexer_name)
   // Returns the ILexer pointer created by Lexilla
   // since 8.4.3
   // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/f1ed4de78dbe8f5d85f4d199bae2970148cca8ed
+
+  NPPM_GETBOOKMARKID = (NPPMSG + 111);
+  // void* NPPM_GETBOOKMARKID(0, 0)
+  // Returns the bookmark ID
+  // since 8.4.7
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/4d5069280900ee249d358bc2b311bdb4b03f30a9
 
   VAR_NOT_RECOGNIZED = 0;
   FULL_CURRENT_PATH = 1;
@@ -581,6 +590,12 @@ const
   //scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
   //scnNotification->nmhdr.hwndFrom = hwndNpp;
   //scnNotification->nmhdr.idFrom = pluginMessage; //where pluginMessage is pointer of type wchar_t
+  NPPN_EXTERNALLEXERBUFFER = (NPPN_FIRST + 29);  // To notify lexer plugins that the buffer (in idFrom) is just applied to a external lexer
+	//scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
+	//scnNotification->nmhdr.hwndFrom = hwndNpp;
+	//scnNotification->nmhdr.idFrom = BufferID; //where pluginMessage is pointer of type wchar_t
+  // since 8.5
+  // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/03a5c4795b764fa5e719092da0c37fc66ec82889
 
   MACRO_USER                = (WM_USER + 4000);
   WM_ISCURRENTMACRORECORDED = (MACRO_USER + 01);
@@ -599,7 +614,8 @@ type
               L_ASN1, L_AVS, L_BLITZBASIC, L_PUREBASIC, L_FREEBASIC,
               L_CSOUND, L_ERLANG, L_ESCRIPT, L_FORTH, L_LATEX,
               L_MMIXAL, L_NIM, L_NNCRONTAB, L_OSCRIPT, L_REBOL,
-              L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG, L_TYPESCRIPT,
+              L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG,
+              L_TYPESCRIPT, L_JSON5, L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD,
               // Don't use L_JS, use L_JAVASCRIPT instead
               // The end of enumerated language type, so it should be always at the end
               L_EXTERNAL);
@@ -625,7 +641,7 @@ type
   /// https://github.com/notepad-plus-plus/notepad-plus-plus/commit/3dfe526019a66be4cac540affbf17dc833bf51b6
   TPlatform = ( PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 );
 
-  TWinVer = ( WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003, WV_XPX64, WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10 );
+  TWinVer = ( WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003, WV_XPX64, WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10, WV_WIN11 );
 
   TSessionInfo = record
     SessionFilePathName: nppPChar;
@@ -649,18 +665,19 @@ type
   end;
 
   TCommunicationInfo = record
-    internalMsg: Cardinal;
+    internalMsg: NativeUInt;
     srcModuleName: nppPChar;
     info: Pointer;
   end;
 
-  TNppData = record
+  TNppData = packed record
     NppHandle: HWND;
     ScintillaMainHandle: HWND;
     ScintillaSecondHandle: HWND;
   end;
+  PNPPData = ^TNppData;
 
-  TShortcutKey = record
+  TShortcutKey = packed record
     IsCtrl: Boolean;
     IsAlt: Boolean;
     IsShift: Boolean;
@@ -670,13 +687,14 @@ type
 
   PFUNCPLUGINCMD = procedure; cdecl;
 
-  _TFuncItem = record
+  _TFuncItem = packed record
     ItemName: array[0..FuncItemNameLen-1] of nppChar;
     Func: PFUNCPLUGINCMD;
     CmdID: Integer;
-    Checked: Boolean;
+    Checked: LongBool;
     ShortcutKey: PShortcutKey;
   end;
+  PFuncItem = ^_TFuncItem;
 
   TToolbarData = record
     ClientHandle: HWND; // client Window Handle
