@@ -26,7 +26,7 @@ interface
 
 uses
   NppPlugin, MainForm, nppdockingform,
-  ConfigForm, Forms, Classes, Dialogs, IniFiles, DbgpWinSocket, Messages, AboutForm;
+  ConfigForm, Forms, Classes, Dialogs, Graphics, IniFiles, DbgpWinSocket, Messages, AboutForm;
 
 const
   MARKER_ARROW = 3;
@@ -53,6 +53,7 @@ type
     ConfigForm: TConfigForm1;
     AboutForm: TAboutForm1;
     menuEvalIndex: Integer;
+    mainFormIcon: TIcon;
     IsCompatible: Boolean;
     procedure GrayFuncItem(i: integer);
     procedure EnableFuncItem(i: integer);
@@ -111,7 +112,7 @@ implementation
 
 { TDbgpNppPlugin }
 uses
-  Windows,Graphics,SysUtils,Controls;
+  Windows,SysUtils,Controls;
 
 procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
 var
@@ -211,6 +212,8 @@ begin
   inherited;
   // Setup menu items
   self.menuEvalIndex := MENU_EVAL_INDEX;
+  self.mainFormIcon := TIcon.Create();
+  self.mainFormIcon.Handle := LoadImage(Hinstance, 'IDB_DBGP_ICO', IMAGE_ICON, 0, 0, (LR_DEFAULTSIZE or LR_LOADTRANSPARENT));
 
   // #112 = F1... pojma nimam od kje...
   self.PluginName := 'DBGp';
@@ -259,6 +262,7 @@ end;
 destructor TDbgpNppPlugin.Destroy;
 begin
   if (Assigned(self.MainForm)) then self.MainForm.Close;
+  if (Assigned(self.mainFormIcon)) then FreeAndNil(self.mainFormIcon);
   inherited;
 end;
 
@@ -343,6 +347,7 @@ begin
   self.MainForm := TNppDockingForm1.Create(self);
   //self.MainForm.DlgId := self.FuncArray[0].CmdID;
   self.MainForm.DlgId := 0;
+  self.MainForm.Icon := self.mainFormIcon;
   //self.MainForm.Show;
   self.MainForm.RegisterDockingForm(DWS_DF_CONT_BOTTOM);
   self.MainForm.Visible := true;

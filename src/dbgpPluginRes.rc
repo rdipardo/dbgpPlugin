@@ -18,6 +18,7 @@
 */
 
 IDB_DBGP_TEST               BITMAP                  "bmp/application_osx_terminal.bmp"
+IDB_DBGP_ICO                ICON                    "bmp/application_osx_terminal.ico"
 
 /*
 IDB_DBGP_STEP_OVER          BITMAP                  "bmp/step_over.bmp"
