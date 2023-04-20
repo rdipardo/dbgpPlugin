@@ -34,7 +34,7 @@ object DebugVarForm: TDebugVarForm
     HintMode = hmTooltip
     ParentShowHint = False
     PopupMenu = PopupMenu1
-    ShowHint = True
+    ShowHint = False
     TabOrder = 0
     TreeOptions.SelectionOptions = [toFullRowSelect]
     TreeOptions.StringOptions = [toSaveCaptions]
@@ -68,6 +68,7 @@ object DebugVarForm: TDebugVarForm
   end
   object JvDockClient1: TJvDockClient
     DirectDrag = False
+    ShowHint = False
     EnableCloseButton = False
     LeftDock = False
     TopDock = False

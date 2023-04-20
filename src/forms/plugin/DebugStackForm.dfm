@@ -33,7 +33,7 @@ object DebugStackForm1: TDebugStackForm1
     HintMode = hmTooltip
     ParentShowHint = False
     PopupMenu = PopupMenu1
-    ShowHint = True
+    ShowHint = False
     TabOrder = 0
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toFullRowSelect]

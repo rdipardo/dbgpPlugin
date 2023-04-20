@@ -754,14 +754,20 @@ begin
     begin
       if (not Assigned(self.DebugWatchForm)) then self.DebugWatchForm := TDebugWatchFrom.Create(self);
       self.DebugWatchForm.OnChange := self.WatchesOnChange;
-      if (Show) then self.DebugWatchForm.Show;
+      if (Show) then begin
+        self.DebugWatchForm.Show;
+        self.DebugWatchForm.SetFocus;
+      end;
     end;
   dctStack:
     begin
       if (not Assigned(self.DebugStackForm1)) then self.DebugStackForm1 := TDebugStackForm1.Create(self);
       self.DebugStackForm1.OnGetContext := self.StackOnGetContext;
       self.DebugStackForm1.OnStackSelect := self.StackSelect;
-      if (Show) then self.DebugStackForm1.Show;
+      if (Show) then begin
+        self.DebugStackForm1.Show;
+        self.DebugStackForm1.SetFocus;
+      end;
     end;
   dctLocalContect:
     begin
@@ -769,7 +775,10 @@ begin
       self.ContextLocalForm1.OnRefresh := self.ContextOnRefresh;
       self.ContextLocalForm1.Tag := 0;
       self.ContextLocalForm1.Caption := 'Local context';
-      if (Show) then self.ContextLocalForm1.Show;
+      if (Show) then begin
+        self.ContextLocalForm1.Show;
+        self.ContextLocalForm1.SetFocus;
+      end;
     end;
   dctGlobalContext:
     begin
@@ -777,7 +786,10 @@ begin
       self.ContextGlobalForm1.OnRefresh := self.ContextOnRefresh;
       self.ContextGlobalForm1.Tag := 1;
       self.ContextGlobalForm1.Caption := 'Global context';
-      if (Show) then self.ContextGlobalForm1.Show;
+      if (Show) then begin
+        self.ContextGlobalForm1.Show;
+        self.ContextGlobalForm1.SetFocus;
+      end;
     end;
   dctBreakpoints:
     begin
@@ -785,7 +797,10 @@ begin
       self.DebugBreakpointsForm1.OnBreakpointAdd := self.BreakpointAdd;
       self.DebugBreakpointsForm1.OnBreakpointEdit := self.BreakpointEdit;
       self.DebugBreakpointsForm1.OnBreakpointDelete := self.BreakpointDelete;
-      if (Show) then self.DebugBreakpointsForm1.Show;
+      if (Show) then begin
+        self.DebugBreakpointsForm1.Show;
+        self.DebugBreakpointsForm1.SetFocus;
+      end;
     end;
   end;
 end;

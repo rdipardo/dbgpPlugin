@@ -33,7 +33,7 @@ object DebugBreakpointsForm1: TDebugBreakpointsForm1
     Images = ImageList1
     ParentShowHint = False
     PopupMenu = PopupMenu1
-    ShowHint = True
+    ShowHint = False
     TabOrder = 0
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toFullRowSelect]
