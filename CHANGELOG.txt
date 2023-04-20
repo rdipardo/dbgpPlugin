@@ -1,3 +1,9 @@
+2023-04-20 v0.14.1
+
+Applied a new workaround for the issue where moving docked panels causes an infinite redraw loop.
+Tried to prevent more tooltips from leaving visual artifacts on the screen.
+Added an icon to the debugger panel's (minimized) window tab.
+
 2022-12-04 v0.14
 
 *** First generally available 64-bit version ***

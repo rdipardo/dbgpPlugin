@@ -45,19 +45,20 @@ Known Issues
 ------------
 
 * Re-positioning the debugger panel too many times may cause an infinite redraw loop, hanging Notepad++.
-  This could simply be a race condition, or a limitation of [how `NPPM_DMMSHOW` is implemented][4].
-  Independent bug reports found [here][5], [here][6] and [here][7] suggest that it's a longstanding problem, and probably
-  not unique to DBGp. See [95c2ab0].
+  This could simply be [a race condition][4], or a limitation of the editor's [window management capabilities][5].
+  Independent bug reports found [here][6], [here][7] and [here][8] suggest that it's a longstanding problem, and
+  not unique to DBGp. See [5b0af29].
 
-* Tooltips are not always destroyed completely, leaving hollow outlines on the screen. See [b3455ff].
+* Tooltips are not always destroyed completely, leaving hollow outlines on the screen. See [6560b64].
 
 [0]: https://community.notepad-plus-plus.org/topic/22772/new-cross-platform-plugin-template-for-delphi-developers/3
 [1]: https://github.com/zobo/dbgpPlugin/issues/1#issuecomment-770746125
 [2]: https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug
 [3]: https://bitbucket.org/rdipardo/dbgp/raw/bf0577b6c621063ff1b82d220afcc32eea9c930e/README.orig.txt
 [4]: https://community.notepad-plus-plus.org/topic/13116/creating-a-docked-window-from-a-background-thread
-[5]: https://sourceforge.net/p/notepad-plus/discussion/482781/thread/ab626469
-[6]: https://community.notepad-plus-plus.org/topic/12519/net-plugin-dockable-dialog-freezes-notepad
-[7]: https://community.notepad-plus-plus.org/topic/23667/npp-got-stuck-after-rearranging-dialogs
-[95c2ab0]: https://bitbucket.org/rdipardo/dbgp/commits/95c2ab0
-[b3455ff]: https://bitbucket.org/rdipardo/dbgp/commits/b3455ff
+[5]: https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net/issues/17#issuecomment-683459898
+[6]: https://sourceforge.net/p/notepad-plus/discussion/482781/thread/ab626469
+[7]: https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net/issues/17
+[8]: https://community.notepad-plus-plus.org/topic/23667/npp-got-stuck-after-rearranging-dialogs
+[5b0af29]: https://bitbucket.org/rdipardo/dbgp/commits/5b0af29
+[6560b64]: https://bitbucket.org/rdipardo/dbgp/commits/6560b64

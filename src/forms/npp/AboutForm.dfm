@@ -188,7 +188,7 @@ object AboutForm1: TAboutForm1
       Width = 115
       Height = 13
       Alignment = taCenter
-      Caption = #169' 2022 Robert Di Pardo'
+      Caption = #169' 2023 Robert Di Pardo'
     end
     object Label9: TLabel
       Left = 18
