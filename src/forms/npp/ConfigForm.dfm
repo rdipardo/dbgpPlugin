@@ -63,6 +63,7 @@ object ConfigForm1: TConfigForm1
       Height = 17
       Caption = 'Bypass all mapping (local windows setup)'
       TabOrder = 3
+      OnClick = ChkLocalSetupClick
     end
   end
   object GroupBox2: TGroupBox
@@ -72,23 +73,30 @@ object ConfigForm1: TConfigForm1
     Height = 177
     Caption = 'Misc'
     TabOrder = 1
-    object Label1: TLabel
+    object Label4: TLabel
       Left = 16
-      Top = 100
+      Top = 116
+      Width = 134
+      Height = 13
+      Caption = 'Listen port:'
+    end
+    object Label1: TLabel
+      Left = 250
+      Top = 116
       Width = 134
       Height = 13
       Caption = 'Maximum depth of elements:'
     end
     object Label2: TLabel
-      Left = 16
-      Top = 124
+      Left = 250
+      Top = 140
       Width = 117
       Height = 13
       Caption = 'Maximum child elements:'
     end
     object Label3: TLabel
       Left = 16
-      Top = 148
+      Top = 140
       Width = 111
       Height = 13
       Caption = 'Maximum variable data:'
@@ -125,24 +133,34 @@ object ConfigForm1: TConfigForm1
       Caption = 'Start with closed socket (firewall conflicts work arround)'
       TabOrder = 3
     end
-    object SpinEdit1: TSpinEdit
+    object SpinEdit4: TSpinEdit
       Left = 160
-      Top = 96
+      Top = 112
+      Width = 57
+      Height = 22
+      MaxValue = 65535
+      MinValue = 9000
+      TabOrder = 5
+      Value = 9003
+    end
+    object SpinEdit1: TSpinEdit
+      Left = 394
+      Top = 112
       Width = 57
       Height = 22
       MaxValue = 1000
       MinValue = 0
-      TabOrder = 4
+      TabOrder = 6
       Value = 0
     end
     object SpinEdit2: TSpinEdit
-      Left = 160
-      Top = 120
+      Left = 394
+      Top = 136
       Width = 57
       Height = 22
       MaxValue = 1000
       MinValue = 0
-      TabOrder = 5
+      TabOrder = 8
       Value = 0
     end
     object CheckBox5: TCheckBox
@@ -151,11 +169,11 @@ object ConfigForm1: TConfigForm1
       Width = 209
       Height = 17
       Caption = 'Break at fist line when debugging starts'
-      TabOrder = 6
+      TabOrder = 4
     end
     object SpinEdit3: TSpinEdit
       Left = 160
-      Top = 144
+      Top = 136
       Width = 57
       Height = 22
       MaxValue = 1000000
@@ -171,7 +189,7 @@ object ConfigForm1: TConfigForm1
     Height = 25
     Caption = 'Ok'
     Default = True
-    TabOrder = 2
+    TabOrder = 9
     OnClick = Button3Click
   end
 end

@@ -46,10 +46,13 @@ type
     CheckBox6: TCheckBox;
     Label3: TLabel;
     SpinEdit3: TSpinEdit;
+    Label4: TLabel;
+    SpinEdit4: TSpinEdit;
     procedure Button1Click(Sender: TObject);
     procedure DeleteButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure ChkLocalSetupClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -99,17 +102,20 @@ begin
   begin
     self.StringGrid1.Rows[i+1] := maps[i];
   end;
-
-  self.CheckBox1.Checked := (self.Npp as TDbgpNppPlugin).config.refresh_local;
-  self.CheckBox2.Checked := (self.Npp as TDbgpNppPlugin).config.refresh_global;
-  self.CheckBox3.Checked := (self.Npp as TDbgpNppPlugin).config.use_source;
-  self.CheckBox4.Checked := (self.Npp as TDbgpNppPlugin).config.start_closed;
-  self.CheckBox5.Checked := (self.Npp as TDbgpNppPlugin).config.break_first_line;
-  self.SpinEdit1.Value := (self.Npp as TDbgpNppPlugin).config.max_depth;
-  self.SpinEdit2.Value := (self.Npp as TDbgpNppPlugin).config.max_children;
-  self.CheckBox6.Checked := (self.Npp as TDbgpNppPlugin).config.local_setup;
-  self.SpinEdit3.Value := (self.Npp as TDbgpNppPlugin).config.max_data;
-
+  with (self.Npp as TDbgpNppPlugin).config do begin
+    self.CheckBox1.Checked := refresh_local;
+    self.CheckBox2.Checked := refresh_global;
+    // 'local_setup' overrides 'use_source'
+    self.CheckBox3.Checked := use_source;
+    self.CheckBox3.Enabled := (not local_setup);
+    self.CheckBox4.Checked := start_closed;
+    self.CheckBox5.Checked := break_first_line;
+    self.SpinEdit1.Value := max_depth;
+    self.SpinEdit2.Value := max_children;
+    self.CheckBox6.Checked := local_setup;
+    self.SpinEdit3.Value := max_data;
+    self.SpinEdit4.Value := listen_port;
+  end;
   //self.StringGrid1.Enabled := not self.CheckBox3.Visible;
 
   // kill the DLG... don't hide it...
@@ -134,17 +140,23 @@ begin
   conf.maps := maps;
   conf.refresh_local := self.CheckBox1.Checked;
   conf.refresh_global := self.CheckBox2.Checked;
-  conf.use_source := self.CheckBox3.Checked;
+  conf.use_source := (self.CheckBox3.Enabled and self.CheckBox3.Checked);
   conf.start_closed := self.CheckBox4.Checked;
   conf.break_first_line := self.CheckBox5.Checked;
   conf.max_depth := self.SpinEdit1.Value;
   conf.max_children := self.SpinEdit2.Value;
   conf.local_setup := self.CheckBox6.Checked;
   conf.max_data := self.SpinEdit3.Value;
+  conf.listen_port := self.SpinEdit4.Value;
 
   (self.Npp as TDbgpNppPlugin).WriteMaps(conf);
 
   self.ModalResult := mrOK;
+end;
+
+procedure TConfigForm1.ChkLocalSetupClick(Sender: TObject);
+begin
+  CheckBox3.Enabled := (not (Sender as TCheckBox).Checked);
 end;
 
 end.

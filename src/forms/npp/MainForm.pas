@@ -618,8 +618,14 @@ procedure TNppDockingForm1.BitBtnCloseClick(Sender: TObject);
 begin
   if (Assigned(self.sock)) then self.sock.Close;
   if Assigned(self.ServerSocket1) then begin
-    if (self.ServerSocket1.Active) then self.BitBtnClose.Caption := 'Turn ON' else self.BitBtnClose.Caption := 'Turn OFF';
-    if (self.ServerSocket1.Active) then self.ServerSocket1.Close else self.ServerSocket1.Open;
+    if (self.ServerSocket1.Active) then begin
+      self.ServerSocket1.Close;
+      self.BitBtnClose.Caption := 'Turn ON';
+    end else begin
+      self.UpdateConfig;
+      self.ServerSocket1.Open;
+      self.BitBtnClose.Caption := 'Turn OFF';
+    end;
   end;
 end;
 
@@ -843,6 +849,8 @@ begin
     self.sock.SetFeature('max_children',IntToStr((self.Npp as TDbgpNppPlugin).config.max_children));
     self.sock.SetFeature('max_data',IntToStr((self.Npp as TDbgpNppPlugin).config.max_data));
   end;
+  if (Assigned(self.ServerSocket1) and not self.ServerSocket1.Active) then
+    self.ServerSocket1.Port := (self.Npp as TDbgpNppPlugin).config.listen_port;
 end;
 
 procedure TNppDockingForm1.SetupSession(Socket: TDbgpWinSocket);

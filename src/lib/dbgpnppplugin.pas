@@ -374,18 +374,21 @@ end;
 procedure TDbgpNppPlugin.FuncConfig;
 var
   r: TModalResult;
+  port: integer;
 begin
   if (not IsCompatible) then Exit;
 
   self.ReadMaps(self.config.maps);
+  port := self.config.listen_port;
   self.ConfigForm := TConfigForm1.Create(self);
   //self.ConfigForm.DlgId := self.FuncArray[9].CmdID;
   self.ConfigForm.Hide;
   r := self.ConfigForm.ShowModal;
   self.ConfigForm := nil;
-  if (r = mrOK) then
+  if (r = mrOK) and (self.config.listen_port <> port) and Assigned(self.MainForm) then
   begin
-    if (Assigned(self.MainForm)) then self.MainForm.UpdateConfig;
+    Warn('Restart the debugger to use port '+IntToStr(self.config.listen_port),
+      'Port number changed', MB_ICONINFORMATION);
   end;
 end;
 
@@ -573,6 +576,7 @@ begin
   ini.WriteString('Misc','start_closed',BoolToStr(conf.start_closed, true));
   ini.WriteString('Misc','break_first_line',BoolToStr(conf.break_first_line, true));
   ini.WriteString('Misc','local_setup',BoolToStr(conf.local_setup, true));
+  ini.WriteInteger('Misc','listen_port',conf.listen_port);
 
   ini.WriteInteger('Features','max_depth',conf.max_depth);
   ini.WriteInteger('Features','max_children',conf.max_children);
