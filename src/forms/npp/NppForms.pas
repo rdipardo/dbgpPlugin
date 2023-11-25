@@ -33,8 +33,8 @@ type
   private
     { Private declarations }
   protected
-    function SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;
-      _LParam: LPARAM): LRESULT;
+    function SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: NativeUInt = 0; _LParam: NativeInt = 0): LRESULT; overload;
+    function SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: NativeUInt = 0; _LParam: Pointer = nil): LRESULT; overload;
     procedure RegisterForm();
     procedure UnregisterForm();
     procedure DoClose(var Action: TCloseAction); override;
@@ -52,6 +52,8 @@ var
   NppForm: TNppForm;
 
 implementation
+
+uses SysUtils;
 
 {$R *.dfm}
 
@@ -81,17 +83,24 @@ begin
   inherited;
 end;
 
-function TNppForm.SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;
-  _LParam: LPARAM): LRESULT;
-var
-  _MsgProc: TWinApiMsgProc;
+function TNppForm.SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: NativeUInt; _LParam: NativeInt): LRESULT;
 begin
-{$IFDEF CPUx64}
-  _MsgProc := SendMessageW;
-{$ELSE}
-  _MsgProc := SendMessage;
-{$ENDIF}
-  Result := _MsgProc(Hndl, Msg, _WParam, _LParam);
+  try
+    if SendMessageTimeoutW(Hndl, Msg, _WParam, _LParam, SMTO_NORMAL, 5000, @Result) = 0 then
+      RaiseLastOSError;
+  except
+    on E: EOSError do begin
+      raise;
+    end;
+    on E: Exception do begin
+      raise;
+    end;
+  end;
+end;
+
+function TNppForm.SafeSendMessage(Hndl: HWND; Msg: Cardinal; _WParam: NativeUInt; _LParam: Pointer): LRESULT;
+begin
+  Result := SafeSendMessage(Hndl, Msg, _WParam, NativeInt(_LParam));
 end;
 
 procedure TNppForm.RegisterForm();

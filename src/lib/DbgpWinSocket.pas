@@ -23,7 +23,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, NetEncoding, ScktComp, WinSock, XMLDoc, XMLDOM, XMLIntf,
-  StrUtils, Dialogs, Variants, Base64, IdGlobal, Forms{$IFDEF DBGP_COMPRESSION}, zlib{$ENDIF};
+  StrUtils, Variants, Base64, IdGlobal, Forms{$IFDEF DBGP_COMPRESSION}, zlib{$ENDIF};
 type
 //  TDbgpWinSocket = class;
 //  TDbgpRawEvent = procedure (Sender: TObject; Socket: TDbgpWinSocket; Data:String) of object;
@@ -112,7 +112,6 @@ type
     remote_unix: boolean;
     last_source_request: string;
     source_files: TStringList;
-    mapped_files: TStringList;
     AsyncDbgpCall: TAsyncDbgpCall;
 {$IFDEF DBGP_COMPRESSION}
     compression: boolean;
@@ -146,7 +145,7 @@ type
     procedure ProcessProperty(varxml:IXMLNodeList; var list:TPropertyItems); overload;
     procedure ProcessProperty(varxml:IXMLNodeList; var list:TPropertyItems; ParentItem: PPropertyItem); overload;
     function WaitForAsyncAnswer(call_data: string): boolean;
-    function CheckForError(varxml: IXMLNodeList): string;
+    procedure CheckForError(Response, Error: IXMLNode);
 
     function UriToFile(const Remote: String): String;
   public
@@ -162,7 +161,7 @@ type
     stack_reentrant: boolean;
     constructor Create(Socket: TSocket; ServerWinSocket: TServerWinSocket);
     destructor Destroy; override;
-    function ReadDBGP: String;
+    procedure ReadDBGP;
     procedure GetFeature(FeatureName: String);
     procedure SetFeature(FeatureName: String; Value: String);
     procedure GetStack;
@@ -203,22 +202,15 @@ type
 procedure FreePropertyItems(list: TPropertyItems);
 //procedure DuplicatePropertyItems(var list: TPropertyItems);
 
-function GetLongPathName(lpszShortPath: PChar; lpszLongPath: PChar ; cchBuffer: DWORD): DWORD; stdcall;
+function GetLongPathName(lpszShortPath: PWideChar; lpszLongPath: PWideChar ; cchBuffer: DWORD): DWORD; stdcall;
+  external kernel32 name 'GetLongPathNameW';
 {$EXTERNALSYM GetLongPathName}
-function GetLongPathNameA(lpszShortPath: PAnsiChar; lpszLongPath: PAnsiChar ; cchBuffer: DWORD): DWORD; stdcall;
-{$EXTERNALSYM GetLongPathNameA}
-function GetLongPathNameW(lpszShortPath: PWideChar; lpszLongPath: PWideChar ; cchBuffer: DWORD): DWORD; stdcall;
-{$EXTERNALSYM GetLongPathNameW}
 
 implementation
 
 uses System.IOUtils, NppPlugin, DBGpNppPlugin;
 
 { TDbgpWinSocket }
-
-function GetLongPathName; external kernel32 name 'GetLongPathNameA';
-function GetLongPathNameA; external kernel32 name 'GetLongPathNameA';
-function GetLongPathNameW; external kernel32 name 'GetLongPathNameW';
 
 
  // predvidevamo praviln XML
@@ -234,8 +226,6 @@ begin
   self.remote_unix := true;
   self.source_files := TStringList.Create;
   self.source_files.CaseSensitive := true;
-  self.mapped_files := TStringList.Create;
-  self.mapped_files.CaseSensitive := true;
   self.AsyncDbgpCall.TransID := ''; // not set
   self.stack_reentrant := false;
 {$IFDEF DBGP_COMPRESSION}
@@ -316,7 +306,7 @@ begin
   begin
     if (r = '') then
     begin
-      ShowMessage('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+' local_setup) fallback to source');
+      Npp.Warn('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+' local_setup) fallback to source');
       r := self.MapSourceToLocal(Source);
     end
     else if TPath.IsUNCPath(r) and (0 = (Npp.UNCWarnings and NO_WARN_UNC_BPS)) then begin
@@ -362,7 +352,7 @@ begin
   // throw exception??
   Result := r;
   if (r<>'') and (FileExists(r)) then exit;
-  ShowMessage('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') fallback to source');
+  Npp.Warn('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') fallback to source');
   Result := self.MapSourceToLocal(Source);
 end;
 
@@ -406,7 +396,7 @@ begin
     Result := StringReplace(Result, '+', '%20', [rfReplaceAll]);
     exit;
   end;
-  ShowMessage('Unable to map filename: '+Local+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') unix: '+BoolToStr(self.remote_unix,true));
+  Npp.Warn('Unable to map filename: '+Local+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') unix: '+BoolToStr(self.remote_unix,true));
   Result := '';
 end;
 
@@ -427,28 +417,21 @@ end;
 
 function TDbgpWinSocket.MapSourceToLocal(Source: String): String;
 var
-  s,s2: String;
-  source2: String;
+  Sbuf: array[0..$7fff] of char;
+  s: String;
   r: integer;
 begin
   Result := '';
   if not Assigned(self.urlParser) then Exit;
 
-  s := '';
-  SetLength(s, 200);
-  GetTempPath(200, PChar(s));
-  SetLength(s, StrLen(PChar(s)));
-  source2 := urlParser.Encode(Source);
-  source2 := StringReplace(source2, '%25', '%', [rfReplaceAll]);
-  s := s + 'dbgp_' + source2;
+  s := TPath.GetTempPath + 'dbgp_' + urlParser.Encode(Source);
+  s := StringReplace(s, '%25', '%', [rfReplaceAll]);
   s := StringReplace(s, '+', '%20', [rfReplaceAll]);
   r := GetLongPathName(PChar(s), nil, 0);
   if (r>0) then
   begin
-    SetLength(s2, r);
-    GetLongPathName(PChar(s), Pchar(s2), r);
-    SetLength(s2, r-1); // cut last null ?
-    s := s2;
+    GetLongPathName(PChar(s), @Sbuf[0], r);
+    s := String(Sbuf);
   end;
   if (self.source_files.IndexOfName(Source) < 0) then
   begin
@@ -707,26 +690,21 @@ end;
 procedure TDbgpWinSocket.ProcessResponse_context_get;
 var
   list: TPropertyItems;
-  context: Integer;
+  context, isNum: Integer;
 begin
   //process context
-  if (self.xml.ChildNodes[1].HasChildNodes) and (self.xml.ChildNodes[1].ChildNodes[0].NodeName = 'error') then
-  begin
-    ShowMessage('DBGP Error ('+self.xml.ChildNodes[1].ChildNodes[0].Attributes['code']+'): '+
-      self.xml.ChildNodes[1].ChildNodes[0].ChildNodes[0].ChildNodes[0].NodeValue);
-    exit;
-  end;
-
   self.ProcessProperty(self.xml.ChildNodes[1].ChildNodes, list);
   try
-    context := StrToInt(self.xml.ChildNodes[1].Attributes['context']);
-  except
-    on EConvertError do context := 0;
-  end;
-  if (Assigned(self.FOnDbgpContext)) then
-    self.FOnDbgpContext(self,context,list);
+    self.ProcessProperty(self.xml.ChildNodes[1].ChildNodes, list);
+    Val(self.xml.ChildNodes[1].Attributes['context'], context, IsNum);
+    if (IsNum <> 0) then
+      context := 0;
+    if (Assigned(self.FOnDbgpContext)) then
+      self.FOnDbgpContext(self,context,list);
   //free data
-  FreePropertyItems(list);
+  finally
+    FreePropertyItems(list);
+  end;
 end;
 
 procedure TDbgpWinSocket.ProcessResponse_eval;
@@ -743,7 +721,7 @@ end;
 
 procedure TDbgpWinSocket.ProcessResponse_stack;
 var
-  i: integer;
+  i, isNum: integer;
   x: IXMLNode;
   stack: TStackList;
 begin
@@ -757,10 +735,12 @@ begin
     if x.NodeName<>'stack' then continue;
     inc(i);
     SetLength(stack, i);
-    stack[i-1].level := StrToInt(x.Attributes['level']);
+    Val(x.Attributes['level'], stack[i-1].level, isNum);
+    if (isNum <> 0) then stack[i-1].level := 0;
     stack[i-1].stacktype := x.Attributes['type'];
     stack[i-1].filename := self.MapRemoteToLocal(x.Attributes['filename']);
-    stack[i-1].lineno := StrToInt(x.Attributes['lineno']);
+    Val(x.Attributes['lineno'], stack[i-1].lineno, isNum);
+    if (isNum <> 0) then stack[i-1].lineno := 0;
     stack[i-1].where := x.Attributes['where'];
     stack[i-1].stacktype := x.Attributes['type'];
     x:= x.NextSibling;
@@ -921,30 +901,49 @@ end;
 
 {-----------------------------------------------------------------------------}
 
-function TDbgpWinSocket.CheckForError(varxml: IXMLNodeList): string;
+procedure TDbgpWinSocket.CheckForError(Response, Error: IXMLNode);
+const
+  NoVal = '<missing>';
+var
+  ErrMsg: IXMLNode;
+  Msg, Location, Cmd, TransID, FileName, LineNo: String;
+  Code, IsNum: Integer;
 begin
-  Result := '';
-  if (varxml[1].HasChildNodes) and (varxml[1].ChildNodes[0].NodeName = 'error') then
+  if (Error.HasChildNodes) and (Error.ChildNodes.FindNode('message') <> Nil) then
   begin
-    Result := 'DBGP Error: '+
-      'Response type: '+varxml[1].NodeName+' '+
-      'Command: '+varxml[1].Attributes['command']+' '+
-      'Error code: '+varxml[1].ChildNodes[0].Attributes['code']+' '+
-      'Error: '+varxml[1].ChildNodes[0].Attributes['apperr']+' '+
-      'Error message: '+varxml[1].ChildNodes[0].ChildNodes[0].ChildNodes[0].Text;
+    Val(Error.Attributes['code'], Code, IsNum);
+    if (IsNum <> 0) then Exit;
+    case Code of
+      // https://xdebug.org/docs/dbgp#error-codes
+      200,202,203,205,300: Exit;
+      else
+        ErrMsg := Error.ChildNodes['message'];
+        Cmd := NoVal; TransID := NoVal; FileName:= NoVal; LineNo:= NoVal; Location := EmptyStr;
+        if Response.HasAttribute('command') then Cmd := Response.Attributes['command'];
+        if Response.HasAttribute('transaction_id') then TransID := Response.Attributes['transaction_id'];
+        if Response.HasAttribute('filename') then FileName := Response.Attributes['filename'];
+        if Response.HasAttribute('lineno') then LineNo := Response.Attributes['lineno'];
+        if not SameText(FileName, NoVal) then Location := Format('File: %s:%s'#13#10, [FileName,LineNo]);
+        Msg := 'DBGP Error'#13#10+
+          Format('Command: %s'#13#10'Transaction: %s'#13#10'%s', [Cmd,TransID,Location])+
+          Format('Error (%d): "%s"', [Code, ErrMsg.NodeValue]);
+      end;
+    Npp.Warn(Msg);
   end;
 end;
 
-// returnes the read data and does all processing...
-function TDbgpWinSocket.ReadDBGP: String;
+// read data and do all processing...
+procedure TDbgpWinSocket.ReadDBGP;
 var
+  ResNode: IXMLNode;
   res,s,s2:String;
-  len:Cardinal;
+  len, isNum:Cardinal;
 {$IFDEF DBGP_COMPRESSION}
   zp: Pointer;
   zs: integer;
 {$ENDIF}
 begin
+repeat
   s := UTF8ToString(self.ReceiveText);
   s := self.buffer + s;
 
@@ -956,21 +955,18 @@ begin
     exit;
   end;
 
-  try
-    len := StrToInt(s);
-  except
-    on EConvertError do len := 0; // hum.. protocol error?
-  end;
+  Val(s, len, isNum);
+  if (isNum <> 0) then len := 0;
 
-  if (Length(s)<len) then
+  if (Length(s)<LongInt(len)) then
   begin
     // Should not happen.. something is wrong with the message
     self.debugdata.Add('Error in len: '+IntToStr(Length(s))+'<'+IntToStr(len)+': '+s);
     exit;
   end;
 
-  s2 := Copy(s, StrLen(PChar(s))+2, len);
-  s := Copy(s, StrLen(PChar(s))+2+len+1, MaxInt);
+  s2 := Copy(s, WideStrLen(PChar(s))+2, len);
+  s := Copy(s, WideStrLen(PChar(s))+2+len+1, MaxInt);
 
   self.buffer := s; // ostanek
   s := '';
@@ -996,9 +992,16 @@ try
   self.xml.XML.Add(s2);
   self.xml.Active := true;
 
-  res := self.xml.ChildNodes[1].NodeName;
   // handle error?
-  s := self.CheckForError(self.xml.ChildNodes);
+  if (xml.ChildNodes[1].HasChildNodes) and (xml.ChildNodes[1].ChildNodes.FindNode('error') <> Nil) then
+  begin
+    ResNode := self.xml.ChildNodes[1];
+    self.CheckForError(ResNode, ResNode.ChildNodes['error']);
+    if (0 = ResNode.ChildNodes.Delete('error')) then
+      continue;
+  end;
+
+  res := self.xml.ChildNodes[1].NodeName;
   if (res = 'init') then
   begin
     self.ProcessInit;
@@ -1041,12 +1044,12 @@ try
     self.ProcessStream;
   end;
 
-  if (s<>'') then ShowMessage(s);
 finally
   if (self.xml<>nil) then self.xml.Active := false;
   self.xml := nil;
 end;
-  if (self.buffer<>'') then self.ReadDBGP;
+
+until (self.buffer = '');
 end;
 
 {-----------------------------------------------------------------------------}
@@ -1205,6 +1208,8 @@ end;
 
 { Async call handling }
 function TDbgpWinSocket.WaitForAsyncAnswer(call_data: string): boolean;
+var
+  lpExitCode: Cardinal;
 begin
   Result := false;
   if (self.AsyncDbgpCall.TransID <> '') then exit;    // curenty only on async call at a time
@@ -1218,6 +1223,8 @@ begin
   begin
     Application.ProcessMessages;
     // check for timeout!
+    GetExitCodeProcess(Application.Handle, lpExitCode);
+    if (lpExitCode <> STILL_ACTIVE) then break;
   end;
   self.AsyncDbgpCall.TransID := ''; // cleanup
   // humm
@@ -1257,7 +1264,7 @@ begin
   list[0].datatype := 'Error';
   list[0].children := nil;
   list[0].data := 'Error in request.';
-  if (not self.WaitForAsyncAnswer(data)) then
+  if (not self.WaitForAsyncAnswer(data)) or (self.AsyncDbgpCall.XMLData='') then
   begin
     exit;
   end;
@@ -1268,7 +1275,11 @@ begin
     xml.XML.Add(self.AsyncDbgpCall.XMLData);
     xml.Active := true;
 
-    Result := self.CheckForError(xml.ChildNodes);
+    if (xml.ChildNodes[1].HasChildNodes) and (xml.ChildNodes[1].ChildNodes.FindNode('error') <> Nil) then
+        Result := 'Error...'
+    else
+        Result := '';
+
     if (Result = '') then
       self.ProcessProperty(xml.ChildNodes[1].ChildNodes, list)
     else

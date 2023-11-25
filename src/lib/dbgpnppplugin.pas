@@ -120,12 +120,12 @@ uses
 
 procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
 var
-  SciTextRangeMsg: Cardinal;
+  SciTextRangeMsg,LangId: Cardinal;
   x:^TToolbarIcons;
   tr: TSciTextRange;
   s: string;
   pzS: PAnsiChar;
-  i: Sci_Position;
+  i, SLen: Sci_Position;
 begin
   if (HWND(sn^.nmhdr.hwndFrom) = self.NppData.NppHandle) then
   begin
@@ -134,7 +134,7 @@ begin
       New(x);
       x^.ToolbarIcon := 0;
       x^.ToolbarBmp := LoadImage(Hinstance, 'IDB_DBGP_TEST', IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE or LR_LOADMAP3DCOLORS));
-      SendMessage(Npp.NppData.NppHandle, NPPM_ADDTOOLBARICON, self.FuncArray[0].CmdID, LPARAM(x));
+      SendNppMessage(NPPM_ADDTOOLBARICON, self.FuncArray[0].CmdID, x);
       self.IsCompatible := {$IFDEF CPUx64}self.SupportsBigFiles{$ELSE}True{$ENDIF};
       if (not self.IsCompatible) then self.WarnUser;
     end;
@@ -155,12 +155,14 @@ begin
     //if (Assigned(self.TestForm)) then self.TestForm.OnDwell();
     //ShowMessage('SCN_DWELLSTART '+IntToStr(sn^.position));
     //self.MainForm.state
+    SendNppMessage(NPPM_GETCURRENTLANGTYPE, 0, @LangId);
+    if not (TNppLang(LangId) in [L_PHP, L_HTML, L_ASP, L_JSP]) then Exit;
 
     s := '';
-    SendMessage(self.NppData.ScintillaMainHandle, SCI_SETWORDCHARS, 0, LPARAM(PChar('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$->')));
-    tr.chrg.cpMin := SendMessage(self.NppData.ScintillaMainHandle, SCI_WORDSTARTPOSITION, sn^.position, 0);
-    SendMessage(self.NppData.ScintillaMainHandle, SCI_SETWORDCHARS, 0, LPARAM(PChar('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')));
-    tr.chrg.cpMax := SendMessage(self.NppData.ScintillaMainHandle, SCI_WORDENDPOSITION, sn^.position, 0);
+    SendMessage(CurrentScintilla, SCI_SETWORDCHARS, 0, LPARAM(PChar('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$->')));
+    tr.chrg.cpMin := SendMessage(CurrentScintilla, SCI_WORDSTARTPOSITION, sn^.position, 0);
+    SendMessage(CurrentScintilla, SCI_SETWORDCHARS, 0, LPARAM(PChar('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')));
+    tr.chrg.cpMax := SendMessage(CurrentScintilla, SCI_WORDENDPOSITION, sn^.position, 0);
 
     if (tr.chrg.cpMin<>-1) and (tr.chrg.cpMax-tr.chrg.cpMin>0) then
     begin
@@ -170,19 +172,19 @@ begin
           SciTextRangeMsg := SCI_GETTEXTRANGE;
       SetLength(s, tr.chrg.cpMax-tr.chrg.cpMin+10);
       tr.lpstrText := PAnsiChar(UTF8Encode(s));
-      SendMessage(Npp.NppData.ScintillaMainHandle, SciTextRangeMsg, 0, LPARAM(@tr));
-      SetString(s, PAnsiChar(tr.lpstrText), StrLen(PAnsiChar(tr.lpstrText)));
+      SLen := SendMessage(CurrentScintilla, SciTextRangeMsg, 0, LPARAM(@tr));
+      SetString(s, PAnsiChar(tr.lpstrText), SLen);
       pzS := PAnsiChar(UTF8Encode(s));
-      SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(pzS+' = Getting...'));
-      SendMessage(self.NppData.ScintillaMainHandle, SCI_SETCHARSDEFAULT, 0, 0);
+      SendMessage(CurrentScintilla, SCI_CALLTIPSHOW, sn^.position, LPARAM(pzS+' = Getting...'));
+      SendMessage(CurrentScintilla, SCI_SETCHARSDEFAULT, 0, 0);
       if (s<>'') then
       begin
         s := self.MainForm.sock.GetPropertyAsync(UTF8ToString(pzS));
-        SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPSHOW, sn^.position, LPARAM(UTF8Encode(s)));
+        SendMessage(CurrentScintilla, SCI_CALLTIPSHOW, sn^.position, LPARAM(UTF8Encode(s)));
       end;
     end;
     if (s = '') then
-        SendMessage(self.NppData.ScintillaMainHandle, SCI_CALLTIPCANCEL, 0, 0);
+        SendMessage(CurrentScintilla, SCI_CALLTIPCANCEL, 0, 0);
   end;
 
   if (sn^.nmhdr.code = SCN_DWELLEND) then
@@ -197,7 +199,7 @@ begin
     if (Assigned(self.MainForm)) then
     begin
       self.GetFileLine(s,i);
-      i := SendMessage(self.NppData.ScintillaMainHandle, SCI_LINEFROMPOSITION, sn.position, 0);
+      i := SendMessage(CurrentScintilla, SCI_LINEFROMPOSITION, sn.position, 0);
       self.MainForm.ToggleBreakpoint(s,i+1);
       //ShowMessage('SCN_MARGINCLICK '+IntToStr(i));
     end;
@@ -458,14 +460,14 @@ var
   test: array [0..18] of AnsiString;
   r: integer;
 begin
-  r := SendMessage(self.NppData.ScintillaMainHandle, SCI_GETMARGINMASKN, 1, 0);
+  r := SendMessage(CurrentScintilla, SCI_GETMARGINMASKN, 1, 0);
   r := r or (1 shl MARKER_ARROW) or (1 shl MARKER_BREAK);
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_SETMARGINMASKN, 1{_SC_MARGE_SYBOLE}, r);
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_MARKERSETALPHA, MARKER_ARROW, 90);
+  SendMessage(CurrentScintilla, SCI_SETMARGINMASKN, 1{_SC_MARGE_SYBOLE}, r);
+  SendMessage(CurrentScintilla, SCI_MARKERSETALPHA, MARKER_ARROW, 90);
 
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_MARKERDEFINE,  MARKER_ARROW, SC_MARK_SHORTARROW{SC_MARK_ARROW});
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_MARKERSETFORE, MARKER_ARROW, $000000);
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_MARKERSETBACK, MARKER_ARROW, $00ff00);
+  SendMessage(CurrentScintilla, SCI_MARKERDEFINE,  MARKER_ARROW, SC_MARK_SHORTARROW{SC_MARK_ARROW});
+  SendMessage(CurrentScintilla, SCI_MARKERSETFORE, MARKER_ARROW, $000000);
+  SendMessage(CurrentScintilla, SCI_MARKERSETBACK, MARKER_ARROW, $00ff00);
 
   test[0]  := '14 14 3 1';
   test[1]  := ' 	c #FFFFFF';
@@ -486,7 +488,7 @@ begin
   test[16] := '              ';
   test[17] := '              ';
 
-  SendMessage(self.NppData.ScintillaMainHandle, SCI_MARKERDEFINEPIXMAP,  MARKER_BREAK, LPARAM(@test));
+  SendMessage(CurrentScintilla, SCI_MARKERDEFINEPIXMAP,  MARKER_BREAK, LPARAM(@test));
 
   self.ChangeMenu(dmsOff);
 end;

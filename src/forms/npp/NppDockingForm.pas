@@ -160,8 +160,7 @@ begin
       ExtractFileName(self.ToolbarData.ModuleName), MAX_PATH);
     StringToWideChar('', self.ToolbarData.AdditionalInfo, 1);
   end;
-  SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0,
-    LPARAM(@self.ToolbarData));
+  SafeSendMessage(self.Npp.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, @self.ToolbarData);
   self.Visible := true;
 end;
 

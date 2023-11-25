@@ -310,7 +310,7 @@ procedure TDebugVarForm.VirtualStringTree1CompareNodes(
 var
   Item1, Item2: PPropertyItem;
   s1,s2: string;
-  i1,i2: integer;
+  i1,i2,e1,e2: integer;
 begin
   Item1 := PPropertyItem(Sender.GetNodeData(Node1));
   Item2 := PPropertyItem(Sender.GetNodeData(Node2));
@@ -319,11 +319,11 @@ begin
   1: begin s1 := Item1.data; s2 := Item2.data; end;
   2: begin s1 := Item1.datatype; s2 := Item2.datatype; end;
   end;
-  try
-    i1 := StrToInt(s1);
-    i2 := StrToInt(s2);
+  Val(s1, i1, e1);
+  Val(s2, i2, e2);
+  if (e1 = 0) and (e2 = 0) then begin
     if (i1 < i2) then Result := -1 else Result := 1;
-  except
+  end else begin
     if (s1 < s2) then Result := -1 else Result := 1;
   end;
 end;

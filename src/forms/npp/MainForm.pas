@@ -234,11 +234,10 @@ end;
 procedure TNppDockingForm1.ServerSocket1ClientRead(Sender: TObject;
   Socket: TCustomWinSocket);
 var
-  r: String;
   sock: TDbgpWinSocket;
 begin
   sock := Socket as TDbgpWinSocket;
-  r:=sock.ReadDBGP;
+  sock.ReadDBGP;
   if (Assigned(self.DebugRawForm1)) then
   begin
     self.DebugRawForm1.Memo1.Lines.AddStrings(sock.debugdata);
@@ -287,7 +286,7 @@ begin
   end;
 
   // Do something usefull with this...
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_SETMOUSEDWELLTIME, 1000,0);
+  SafeSendMessage(Npp.CurrentScintilla, SCI_SETMOUSEDWELLTIME, 1000,0);
 end;
 
 procedure TNppDockingForm1.sockDbgpInit(Sender: TDbgpWinSocket; init: TInit);
@@ -313,7 +312,7 @@ begin
       if (j<>-1) then
       begin
         self.Npp.DoOpen(tmp[j]);
-        newl := SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERLINEFROMHANDLE, self.DebugBreakpointsForm1.breakpoints[i].sci_handler, 0);
+        newl := SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERLINEFROMHANDLE, self.DebugBreakpointsForm1.breakpoints[i].sci_handler, 0);
         if (newl <> -1) then
         begin
           self.DebugBreakpointsForm1.breakpoints[i].lineno := newl+1;
@@ -339,18 +338,18 @@ var
   r: boolean;
 begin
   // @todo: create some helper functions in NppPlugin
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
+  SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
   r := self.Npp.DoOpen(filename, lineno-1);
   if (not r) then exit;
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERADD, lineno-1, MARKER_ARROW);
+  SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
+  SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERADD, lineno-1, MARKER_ARROW);
   // redraw all line breakpoints
-  SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEALL, MARKER_BREAK, 0);
+  SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEALL, MARKER_BREAK, 0);
   for i := 0 to Length(self.DebugBreakpointsForm1.breakpoints)-1 do
   begin
     if (self.DebugBreakpointsForm1.breakpoints[i].breakpointtype <> btLine) then continue;
     if (self.DebugBreakpointsForm1.breakpoints[i].filename <> filename) then continue;
-    self.DebugBreakpointsForm1.breakpoints[i].sci_handler := SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERADD, self.DebugBreakpointsForm1.breakpoints[i].lineno-1, MARKER_BREAK);
+    self.DebugBreakpointsForm1.breakpoints[i].sci_handler := SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERADD, self.DebugBreakpointsForm1.breakpoints[i].lineno-1, MARKER_BREAK);
   end;
 end;
 
@@ -410,7 +409,7 @@ begin
     if (j<>-1) then
     begin
       self.Npp.DoOpen(tmp[j]);
-      self.DebugBreakpointsForm1.breakpoints[i].sci_handler := SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERADD, self.DebugBreakpointsForm1.breakpoints[i].lineno-1, MARKER_BREAK);
+      self.DebugBreakpointsForm1.breakpoints[i].sci_handler := SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERADD, self.DebugBreakpointsForm1.breakpoints[i].lineno-1, MARKER_BREAK);
     end;
   end;
   tmp.Free;
@@ -473,7 +472,7 @@ begin
   end
   else
   begin
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
+    SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
     Sender.Resume(Run);
   end;
 end;
@@ -573,9 +572,9 @@ begin
 
   // @todo: create some helper functions in NppPlugin
   if (remove) then
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETE, lineno-1, MARKER_BREAK)
+    SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETE, lineno-1, MARKER_BREAK)
   else
-    bp.sci_handler := SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERADD, lineno-1, MARKER_BREAK);
+    bp.sci_handler := SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERADD, lineno-1, MARKER_BREAK);
 
   if (self.state in [dsStarting, dsBreak]) then
   begin
@@ -722,7 +721,7 @@ begin
   // @todo: change view to file and back
   self.Npp.GetFileLine(s,i);
   if (bp.sci_handler>0) and (bp.filename=s) then
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEHANDLE, bp.sci_handler, 0);
+    SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEHANDLE, bp.sci_handler, 0);
 
   if Assigned(self.sock) and (self.state <> dsStopped) then
   begin
@@ -855,9 +854,9 @@ begin
     self.DebugStackForm1.ClearStack;
     self.ContextLocalForm1.ClearVars;
     self.ContextGlobalForm1.ClearVars;
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_SETMOUSEDWELLTIME, SC_TIME_FOREVER,0);
-    SendMessage(self.Npp.NppData.ScintillaMainHandle, SCI_CALLTIPCANCEL, 0, 0);
+    SafeSendMessage(Npp.CurrentScintilla, SCI_MARKERDELETEALL, MARKER_ARROW, 0);
+    SafeSendMessage(Npp.CurrentScintilla, SCI_SETMOUSEDWELLTIME, SC_TIME_FOREVER, 0);
+    SafeSendMessage(Npp.CurrentScintilla, SCI_CALLTIPCANCEL, 0, 0);
     self.SetState(dsStopped);
     exit;
   end;

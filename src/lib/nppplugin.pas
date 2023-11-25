@@ -32,6 +32,7 @@ uses
     PluginName: WideString; // unicode
     FuncArray: array of _TFuncItem;
     function GetPluginsConfigDir: WideString;
+    function GetCurrentScintilla: HWND;
     function SupportsDarkMode: Boolean; // needs N++ 8.0 or later
     function SupportsBigFiles: Boolean; // needs N++ 8.3 or later
     function HasFullRangeApis: Boolean; // needs N++ 8.4.3 or later
@@ -41,6 +42,8 @@ uses
       ShortcutKey: PShortcutKey): Integer; overload;
     function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: AnsiChar)
       : PShortcutKey;
+    function SendNppMessage(Msg: Cardinal; _WParam: NativeUInt = 0; _LParam: NativeInt = 0): LRESULT; overload;
+    function SendNppMessage(Msg: Cardinal; _WParam: NativeUInt; APParam: Pointer = nil): LRESULT; overload;
   public
     NppData: TNppData;
     constructor Create;
@@ -65,6 +68,7 @@ uses
     procedure GetFileLine(var filename: String; var Line: Sci_Position);
     procedure GetOpenFiles(files: TStrings);
     function GetWord: string;
+    property CurrentScintilla: HWND read GetCurrentScintilla;
   end;
 
   function WideStrLen(const Str: PWideChar): Cardinal;
@@ -143,19 +147,16 @@ end;
 
 procedure TNppPlugin.GetFileLine(var filename: String; var Line: Sci_Position);
 var
-  s: String;
+  s: array [0..1024] of char;
   r: Sci_Position;
+  editor: HWND;
 begin
-  s := '';
-  SetLength(s, 300);
-  SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
-    LPARAM(PChar(s)));
-  SetLength(s, StrLen(PChar(s)));
-  filename := s;
+  editor := CurrentScintilla;
+  SendNppMessage(NPPM_GETFULLCURRENTPATH, 0, @s[0]);
+  filename := string(s);
 
-  r := SendMessage(self.NppData.ScintillaMainHandle, SCI_GETCURRENTPOS, 0, 0);
-  Line := SendMessage(self.NppData.ScintillaMainHandle,
-    SCI_LINEFROMPOSITION, r, 0);
+  r := SendMessageW(editor, SCI_GETCURRENTPOS, 0, 0);
+  Line := SendMessageW(editor, SCI_LINEFROMPOSITION, r, 0);
 end;
 
 function TNppPlugin.GetFuncsArray(var FuncsCount: Integer): Pointer;
@@ -171,14 +172,10 @@ end;
 
 function TNppPlugin.GetPluginsConfigDir: WideString;
 var
-  s: string;
+  s: array [0..1024] of char;
 begin
-  s := '';
-  SetLength(s, 1001);
-  SendMessage(self.NppData.NppHandle, NPPM_GETPLUGINSCONFIGDIR, 1000,
-    LPARAM(PChar(s)));
-  SetString(s, PChar(s), StrLen(PChar(s)));
-  Result := s;
+  SendNppMessage(NPPM_GETPLUGINSCONFIGDIR, 1000, @s[0]);
+  Result := string(s);
 end;
 
 procedure TNppPlugin.GetOpenFiles(files: TStrings);
@@ -187,13 +184,13 @@ var
   tmpfiles: array of WideString;
 begin
 // TODO unicode
-  nf := SendMessageW(self.NppData.NppHandle, NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
+  nf := SendNppMessage(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
   SetLength(tmpfiles, nf);
   for i:=0 to nf-1 do
   begin
-    SetLength(tmpfiles[i],500);
+    SetLength(tmpfiles[i], 1024);
   end;
-  nf := SendMessageW(self.NppData.NppHandle, NPPM_GETOPENFILENAMESPRIMARY, WPARAM(tmpfiles), nf);
+  nf := SendNppMessage(NPPM_GETOPENFILENAMESPRIMARY, WPARAM(tmpfiles), nf);
   files.Clear;
   for i:=0 to nf-1 do
   begin
@@ -239,7 +236,6 @@ end;
 procedure TNppPlugin.SetInfo(NppData: TNppData);
 begin
   self.NppData := NppData;
-  Application.Handle := NppData.NppHandle;
 end;
 
 function WideStrLen(const Str: PWideChar): Cardinal;
@@ -269,26 +265,21 @@ var
 begin
   s := '';
   SetLength(s, 800);
-  SendMessage(self.NppData.NppHandle, NPPM_GETCURRENTWORD, 0, LPARAM(PChar(s)));
+  SendNppMessage(NPPM_GETCURRENTWORD, 0, PChar(s));
   Result := s;
 end;
 
 function TNppPlugin.DoOpen(filename: WideString): Boolean;
 var
   r: Integer;
-  s: string;
+  s: array [0..1024] of char;
 begin
   // ask if we are not already opened
-  s := '';
-  SetLength(s, 500);
-  SendMessage(self.NppData.NppHandle, NPPM_GETFULLCURRENTPATH, 0,
-    LPARAM(PChar(s)));
-  SetString(s, PChar(s), StrLen(PChar(s)));
+  SendNppMessage(NPPM_GETFULLCURRENTPATH, 0, @s[0]);
   Result := true;
   if (s = filename) then
     exit;
-  r := SendMessage(self.NppData.NppHandle, WM_DOOPEN, 0,
-    LPARAM(PChar(filename)));
+  r := SendNppMessage(WM_DOOPEN, 0, PChar(filename));
   Result := (r = 0);
 end;
 
@@ -298,7 +289,7 @@ var
 begin
   r := self.DoOpen(filename);
   if (r) then
-    SendMessage(self.NppData.ScintillaMainHandle, SCI_GOTOLINE, Line, 0);
+    SendMessageW(CurrentScintilla, SCI_GOTOLINE, Line, 0);
   Result := r;
 end;
 
@@ -311,16 +302,36 @@ function TNppPlugin.GetNppVersion: Cardinal;
 var
   NppVersion: Cardinal;
 begin
-  NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 0, 0);
+  NppVersion := SendNppMessage(NPPM_GETNPPVERSION);
   // retrieve the zero-padded version, if available
   // https://github.com/notepad-plus-plus/notepad-plus-plus/commit/ef609c896f209ecffd8130c3e3327ca8a8157e72
   if ((HIWORD(NppVersion) > 8) or
       ((HIWORD(NppVersion) = 8) and
         (((LOWORD(NppVersion) >= 41) and (not (LOWORD(NppVersion) in [191, 192, 193]))) or
           (LOWORD(NppVersion) in [5, 6, 7, 8, 9])))) then
-    NppVersion := SendMessage(self.NppData.NppHandle, NPPM_GETNPPVERSION, 1, 0);
+    NppVersion := SendNppMessage(NPPM_GETNPPVERSION, 1, 0);
 
   Result := NppVersion;
+end;
+
+function TNppPlugin.SendNppMessage(Msg: Cardinal; _WParam: NativeUInt; _LParam: NativeInt): LRESULT;
+begin
+  Result := SendMessageW(self.NppData.NppHandle, Msg, WPARAM(_WParam), LPARAM(_LParam));
+end;
+
+function TNppPlugin.SendNppMessage(Msg: Cardinal; _WParam: NativeUInt; APParam: Pointer): LRESULT;
+begin
+  Result := SendNppMessage(Msg, _WParam, NativeInt(APParam));
+end;
+
+function TNppPlugin.GetCurrentScintilla: HWND;
+var
+  Idx: Integer;
+begin
+  Result := Self.NppData.ScintillaMainHandle;
+  SendNppMessage(NPPM_GETCURRENTSCINTILLA, 0, @Idx);
+  if Idx <> 0 then
+    Result := Self.NppData.ScintillaSecondHandle;
 end;
 
 /// since 8.0
