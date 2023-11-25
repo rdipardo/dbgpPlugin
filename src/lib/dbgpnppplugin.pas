@@ -26,9 +26,11 @@ interface
 
 uses
   NppPlugin, MainForm, nppdockingform,
-  ConfigForm, Forms, Classes, Dialogs, Graphics, IniFiles, DbgpWinSocket, Messages, AboutForm;
+  ConfigForm, Forms, Classes, Windows, Graphics, IniFiles, DbgpWinSocket, Messages, AboutForm;
 
 const
+  NO_WARN_UNC_BPS = 1;
+  NO_WARN_UNC_SRCMAPS = 2;
   MARKER_ARROW = 3;
   MARKER_BREAK = 4;
   MENU_EVAL_INDEX = 8;
@@ -61,6 +63,7 @@ type
     procedure WarnUser;
   public
     config: TDbgpNppPluginConfig;
+    UNCWarnings: 0..3;
     constructor Create;
     destructor Destroy; override;
 
@@ -86,6 +89,7 @@ type
     procedure WriteMaps(conf: TDbgpNppPluginConfig);
 
     procedure ChangeMenu(state: TDbgpMenuState);
+    function Warn(Msg: String; Caption: String = 'Error'; Icon: Cardinal = MB_ICONERROR): Integer;
   end;
 
 var
@@ -112,7 +116,7 @@ implementation
 
 { TDbgpNppPlugin }
 uses
-  Windows,SysUtils,Controls;
+  SysUtils,Controls;
 
 procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
 var
@@ -214,6 +218,7 @@ begin
   self.menuEvalIndex := MENU_EVAL_INDEX;
   self.mainFormIcon := TIcon.Create();
   self.mainFormIcon.Handle := LoadImage(Hinstance, 'IDB_DBGP_ICO', IMAGE_ICON, 0, 0, (LR_DEFAULTSIZE or LR_LOADTRANSPARENT));
+  self.UNCWarnings:= 0;
 
   // #112 = F1... pojma nimam od kje...
   self.PluginName := 'DBGp';
@@ -618,6 +623,11 @@ begin
     for i:=self.menuEvalIndex+3 to self.menuEvalIndex+7 do self.EnableFuncItem(i);
   end;
 
+end;
+
+function TDbgpNppPlugin.Warn(Msg: String; Caption: String; Icon: Cardinal): Integer;
+begin
+  Result := MessageBoxW(Npp.NppData.NppHandle, PWChar(Msg), PWChar(Caption), Icon or MB_OK);
 end;
 
 procedure TDbgpNppPlugin.WarnUser;

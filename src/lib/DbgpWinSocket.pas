@@ -126,7 +126,7 @@ type
     FOnDbgpEval: TVarsCB;
     FOnDbgpContext: TVarsCB;
     FOnDbgpBreakpoints: TBreakpointsCB;
-    function MapRemoteToLocal(Remote:String): String;
+    function MapRemoteToLocal(const Remote:String): String;
     function MapLocalToRemote(Local:String): String;
     function MapSourceToLocal(Source:String): String;
     function MapLocalToSource(Local:String): String;
@@ -148,7 +148,7 @@ type
     function WaitForAsyncAnswer(call_data: string): boolean;
     function CheckForError(varxml: IXMLNodeList): string;
 
-    function UriToFile(Remote: String): String;
+    function UriToFile(const Remote: String): String;
   public
     { Public declarations }
     maps: TMaps;
@@ -212,6 +212,8 @@ function GetLongPathNameW(lpszShortPath: PWideChar; lpszLongPath: PWideChar ; cc
 
 implementation
 
+uses System.IOUtils, NppPlugin, DBGpNppPlugin;
+
 { TDbgpWinSocket }
 
 function GetLongPathName; external kernel32 name 'GetLongPathNameA';
@@ -243,16 +245,22 @@ end;
 destructor TDbgpWinSocket.Destroy;
 var
   i: integer;
+  TmpFilePath: String;
 begin
-  FreeAndNil(self.debugdata);
-  FreeAndNil(self.urlParser);
+  if Assigned(self.debugdata) then
+    FreeAndNil(self.debugdata);
+  if Assigned(self.urlParser) then
+    FreeAndNil(self.urlParser);
   // delete the shit
-  for i := 0 to self.source_files.Count-1 do
-  begin
-    FileSetReadOnly(self.MapSourceToLocal(self.source_files[i]),false);
-    //DeleteFile(self.MapSourceToLocal(self.source_files[i]));
+  if Assigned(self.source_files) then begin
+    for i := 0 to self.source_files.Count-1 do
+    begin
+      TmpFilePath := self.source_files.ValueFromIndex[i];
+      FileSetReadOnly(TmpFilePath, False);
+      SendMessageW(Npp.NppData.NppHandle, NPPM_SWITCHTOFILE, 0, LPARAM(PWChar(TmpFilePath)));
+    end;
+    FreeAndNil(self.source_files);
   end;
-  FreeAndNil(self.source_files);
   inherited;
 end;
 
@@ -267,42 +275,68 @@ end;
 // remote to local
 
 // used to map straight local files: file:///D:/xxx/php/test1.php  D:\xxx\php\test1.php
-function TDbgpWinSocket.UriToFile(Remote: String): String;
+function TDbgpWinSocket.UriToFile(const Remote: String): String;
+var
+  Path: String;
 begin
   Result := '';
-  if (LeftStr(Remote, 8)='file:///') and (Length(Remote)>9) and (Remote[10]=':') then
-  begin
-    Remote := Copy(Remote,9,MaxInt);
-    Result := StringReplace(Remote, '/', '\', [rfReplaceAll]);
-  end;
+  if (Length(Remote) < 10) or (not SameText(LeftStr(Remote, 5), 'file:')) then
+    Exit;
+
+  Path := StringReplace(Remote, '/', '\', [rfReplaceAll]);
+  if TPath.IsDriveRooted(Copy(Path, 9, MaxInt)) then
+    Path := Copy(Path, 9, MaxInt)
+  {
+    "In case it's a normal 'windows path' the url becomes file:///C:/..."
+    https://bugs.xdebug.org/view.php?id=1964
+  }
+  else if TPath.IsUNCPath(Copy(Path, 7, MaxInt)) then
+    Path := Copy(Path, 7, MaxInt)
+  else if TPath.IsUNCPath(Copy(Path, 6, MaxInt)) then
+    Path := Copy(Path, 6, MaxInt)
+  else
+    Path := EmptyStr;
+
+  Result := Path;
 end;
 
-function TDbgpWinSocket.MapRemoteToLocal(Remote: String): String;
+function TDbgpWinSocket.MapRemoteToLocal(const Remote: String): String;
+const
+  WarnDlgTitle = 'Unsupported UNC file path';
 var
   i: integer;
-  r: string;
+  r, Source: string;
 begin
-  Remote := urlParser.Decode(Remote);
-  self.remote_unix := not ((LeftStr(Remote, 8)='file:///') and (Length(Remote)>9) and (Remote[10]=':'));
+  Source := String(urlParser.Decode(Remote));
+  r := self.UriToFile(Source);
+  self.remote_unix := not (TPath.IsDriveRooted(r) or TPath.IsUNCPath(r));
 
   // 1. if local_setup dont do any mapping. throw errors and fallback to source mapping
-  if (self.local_setup) and (LeftStr(Remote, 5)<>'dbgp:') then
+  if (self.local_setup) and (LeftStr(Source, 5)<>'dbgp:') then
   begin
-    r := self.UriToFile(Remote);
     if (r = '') then
     begin
-      ShowMessage('Unable to map remote: '+Remote+' (ip: '+self.init.server+' idekey: '+self.init.idekey+' local_setup) fallback to source');
-      r := self.MapSourceToLocal(Remote);
+      ShowMessage('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+' local_setup) fallback to source');
+      r := self.MapSourceToLocal(Source);
+    end
+    else if TPath.IsUNCPath(r) and (0 = (Npp.UNCWarnings and NO_WARN_UNC_BPS)) then begin
+      Npp.Warn('Breakpoints in "'+r+'" will be silently ignored by Xdebug.', WarnDlgTitle, MB_ICONWARNING);
+      if (IDYES <> Npp.Warn('Show this warning next time?', WarnDlgTitle, MB_ICONQUESTION or MB_YESNO or MB_DEFBUTTON2)) then
+        Npp.UNCWarnings := (Npp.UNCWarnings or NO_WARN_UNC_BPS);
     end;
     Result := r;
     exit;
   end;
 
   // 2. if use_source or dbgp:, very simple it always sucseeds.
-  if (LeftStr(Remote, 5)='dbgp:') or (self.use_source) then
+  if (LeftStr(Source, 5)='dbgp:') or (self.use_source) then
   begin
-    Result := self.MapSourceToLocal(Remote);
-    exit;
+    if TPath.IsUNCPath(r) and (0 = (Npp.UNCWarnings and NO_WARN_UNC_SRCMAPS)) then begin
+      Npp.Warn('Passing UNC file paths to the SOURCE command is not supported.', WarnDlgTitle, MB_ICONWARNING);
+      if (IDYES <> Npp.Warn('Show this warning next time?', WarnDlgTitle, MB_ICONQUESTION or MB_YESNO or MB_DEFBUTTON2)) then
+        Npp.UNCWarnings := (Npp.UNCWarnings or NO_WARN_UNC_SRCMAPS);
+    end else
+      Exit(self.MapSourceToLocal(Remote));
   end;
 
   // 3. normal mapping
@@ -313,12 +347,12 @@ begin
     if (CompareText(self.maps[i][2], LeftStr(Remote, Length(self.maps[i][2])))=0) then
     begin
       // force dbgp:
-      if (self.maps[i][3] = 'DBGP:') then
+      if (SameText(self.maps[i][3], 'DBGP:')) then
       begin
-        Result := self.MapSourceToLocal(Remote);
+        Result := self.MapSourceToLocal(Source);
         exit;
       end;
-      r := Copy(Remote, Length(self.maps[i][2])+1, MaxInt);
+      r := Copy(Source, Length(self.maps[i][2])+1, MaxInt);
       Result := self.maps[i][3] + StringReplace(r, '/', '\', [rfReplaceAll]);
       exit;
     end;
@@ -326,11 +360,10 @@ begin
 
   // 4. No map found, try local or warn and fallback to source
   // throw exception??
-  r := self.UriToFile(Remote);
   Result := r;
   if (r<>'') and (FileExists(r)) then exit;
-  ShowMessage('Unable to map remote: '+Remote+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') fallback to source');
-  Result := self.MapSourceToLocal(Remote);
+  ShowMessage('Unable to map remote: '+Source+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') fallback to source');
+  Result := self.MapSourceToLocal(Source);
 end;
 
 
@@ -350,6 +383,7 @@ begin
   if (self.local_setup) then
   begin
     Result := 'file:///'+urlParser.Encode(StringReplace(Local, '\', '/', [rfReplaceAll]));
+    Result := StringReplace(Result, '+', '%20', [rfReplaceAll]);
     exit;
   end;
   // 3. Use maps
@@ -369,6 +403,7 @@ begin
   if (not self.remote_unix and (self.Init.server = '127.0.0.1')) then
   begin
     Result := 'file:///'+urlParser.Encode(StringReplace(Local, '\', '/', [rfReplaceAll]));
+    Result := StringReplace(Result, '+', '%20', [rfReplaceAll]);
     exit;
   end;
   ShowMessage('Unable to map filename: '+Local+' (ip: '+self.init.server+' idekey: '+self.init.idekey+') unix: '+BoolToStr(self.remote_unix,true));
@@ -379,15 +414,14 @@ end;
 function TDbgpWinSocket.MapLocalToSource(Local: String): String;
 var
   i: integer;
+  Source: String;
 begin
   Result := '';
   for i:=0 to self.source_files.Count-1 do
   begin
-    if (Local = self.MapSourceToLocal(self.source_files[i])) then
-    begin
-      Result := self.source_files[i];
-      exit;
-    end;
+    Source := self.source_files.ValueFromIndex[i];
+    if (SameText(Local, Source)) then
+      Exit(Source);
   end;
 end;
 
@@ -398,19 +432,16 @@ var
   r: integer;
 begin
   Result := '';
+  if not Assigned(self.urlParser) then Exit;
+
   s := '';
   SetLength(s, 200);
   GetTempPath(200, PChar(s));
   SetLength(s, StrLen(PChar(s)));
   source2 := urlParser.Encode(Source);
-  source2 := StringReplace(source2, '/', '%2f', [rfReplaceAll]);
-  source2 := StringReplace(source2, ':', '%3a', [rfReplaceAll]);
+  source2 := StringReplace(source2, '%25', '%', [rfReplaceAll]);
   s := s + 'dbgp_' + source2;
-  if (self.source_files.IndexOf(Source)=-1) then
-  begin
-    self.source_files.Add(Source);
-    self.GetSource(Source);
-  end;
+  s := StringReplace(s, '+', '%20', [rfReplaceAll]);
   r := GetLongPathName(PChar(s), nil, 0);
   if (r>0) then
   begin
@@ -418,6 +449,11 @@ begin
     GetLongPathName(PChar(s), Pchar(s2), r);
     SetLength(s2, r-1); // cut last null ?
     s := s2;
+  end;
+  if (self.source_files.IndexOfName(Source) < 0) then
+  begin
+    self.source_files.AddPair(Source, S);
+    self.GetSource(Source);
   end;
   Result := s;
 end;
