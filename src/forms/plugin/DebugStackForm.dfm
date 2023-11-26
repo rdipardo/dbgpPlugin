@@ -12,7 +12,7 @@ object DebugStackForm1: TDebugStackForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
@@ -30,7 +30,7 @@ object DebugStackForm1: TDebugStackForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
     Header.Options = [hoColumnResize, hoDrag, hoVisible]
-    HintMode = hmTooltip
+    HintMode = hmHint
     ParentShowHint = False
     PopupMenu = PopupMenu1
     ShowHint = False
@@ -51,7 +51,7 @@ object DebugStackForm1: TDebugStackForm1
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 1
         Text = 'File'
-        Width = 250
+        Width = 448
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]

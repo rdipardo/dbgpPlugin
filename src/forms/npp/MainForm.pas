@@ -30,7 +30,7 @@ uses
   DebugContextForms, DebugWatchForms;
 
 type
-  TDebugChildType = ( dctWatches, dctGlobalContext, dctLocalContect, dctBreakpoints, dctStack );
+  TDebugChildType = ( dctWatches, dctGlobalContext, dctLocalContect, dctBreakpoints, dctStack, dctEval );
   TNppDockingForm1 = class(TNppDockingForm)
     ServerSocket1: TServerSocket;
     JvDockServer1: TJvDockServer;
@@ -46,6 +46,7 @@ type
     BitBtnRunTo: TBitBtn;
     BitBtnStop: TBitBtn;
     ComboBox1: TComboBox;
+    LblSession: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ServerSocket1Accept(Sender: TObject;
       Socket: TCustomWinSocket);
@@ -207,6 +208,9 @@ begin
   self.Open(dctWatches,false);
   ManualTabDockAddPage(d, self.DebugWatchForm);
 
+  self.Open(dctEval,false);
+  ManualTabDockAddPage(d, self.EvalVarForm);
+
   self.BitBtnClose.Caption := 'Turn ON';
   self.SetState(DbgpWinSocket.dsStopped);
 end;
@@ -363,25 +367,8 @@ end;
 procedure TNppDockingForm1.sockDbgpEval(Sender: TDbgpWinSocket;
   context: Integer; list: TPropertyItems);
 begin
-  // TODO: fix this possible leak!
-  if (not Assigned(self.DebugEvalForm1)) or (not self.DebugEvalForm1.CheckBoxReuseResult.Checked) then
-  begin
-    if (Assigned(self.EvalVarForm)) then
-    begin
-      self.EvalVarForm.DefaultCloseAction := caFree;
-      self.EvalVarForm := TDebugVarForm.Create(self);
-    end;
-  end;
-
-  if (not Assigned(self.EvalVarForm)) then
-  begin
-    self.EvalVarForm := TDebugVarForm.Create(self);
-  end;
-
   self.EvalVarForm.SetVars(list);
-  self.EvalVarForm.Caption := 'Eval';
-
-  self.EvalVarForm.Show;
+  Open(dctEval,true);
 end;
 
 procedure TNppDockingForm1.sockDbgpBreakpoints(Sender: TDbgpWinSocket;
@@ -480,7 +467,7 @@ end;
 procedure TNppDockingForm1.FormResize(Sender: TObject);
 begin
   if (self.Height > 60) then
-  self.JvDockServer1.BottomDockPanel.Height := self.Height - 30;
+    self.JvDockServer1.BottomDockPanel.Height := self.Height - 42;
 end;
 
 procedure TNppDockingForm1.ContextOnRefresh(Sender: TObject);
@@ -794,6 +781,14 @@ begin
       if (Show) then begin
         self.ContextGlobalForm1.Show;
         self.ContextGlobalForm1.SetFocus;
+      end;
+    end;
+  dctEval:
+    begin
+      if (not Assigned(self.EvalVarForm)) then self.EvalVarForm := TDebugVarForm.Create(self);
+      if (Show) then begin
+        self.EvalVarForm.Show;
+        self.EvalVarForm.SetFocus;
       end;
     end;
   dctBreakpoints:

@@ -22,21 +22,23 @@ unit DebugRawForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, JvComponentBase, JvDockControlForm, StdCtrls, Menus, Clipbrd, NppDockingForm;
+  Windows, Messages, SysUtils, Classes, Controls, Dialogs, StdCtrls, Menus, Clipbrd, NppDockingForm;
 
 type
   TDebugRawForm1 = class(TNppDockingForm)
-    JvDockClient1: TJvDockClient;
     Memo1: TMemo;
     Button1: TButton;
     PopupMenu1: TPopupMenu;
     Clear1: TMenuItem;
     Copy1: TMenuItem;
+    SaveDbgp: TMenuItem;
     ComboBox1: TComboBox;
+    DlgSaveDbgp: TSaveDialog;
+    procedure DoShow; override;
     procedure Button1Click(Sender: TObject);
     procedure Clear1Click(Sender: TObject);
     procedure Copy1Click(Sender: TObject);
+    procedure SaveDBGpClick(Sender: TObject);
     procedure ComboBox1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
@@ -63,7 +65,7 @@ begin
   if Assigned(mf.sock) then
   begin
     mf.sock.SendText(UTF8Encode(self.ComboBox1.Text)+#0);
-    mf.sock.debugdata.Add('Raw: '+self.ComboBox1.Text);
+    mf.sock.debugdata.Add('User: '+self.ComboBox1.Text);
   end;
   self.ComboBox1.Items.Add(self.ComboBox1.Text);
 end;
@@ -83,6 +85,19 @@ procedure TDebugRawForm1.ComboBox1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if (Key = VK_RETURN) then self.Button1Click(Sender);
+end;
+
+procedure TDebugRawForm1.SaveDBGpClick(Sender: TObject);
+begin
+  if DlgSaveDbgp.Execute(self.Npp.NppData.NppHandle) then
+    Memo1.Lines.SaveToFile(DlgSaveDbgp.FileName);
+end;
+
+procedure TDebugRawForm1.DoShow;
+begin
+  inherited;
+  SafeSendMessage(Memo1.Handle, EM_LINESCROLL, 0, Memo1.Lines.Count);
+  ComboBox1.SetFocus;
 end;
 
 end.

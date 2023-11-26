@@ -2,7 +2,7 @@ object DebugVarForm: TDebugVarForm
   Left = 353
   Top = 122
   BorderStyle = bsSizeToolWin
-  Caption = 'Attributes'
+  Caption = 'Eval'
   ClientHeight = 287
   ClientWidth = 379
   Color = clBtnFace
@@ -12,7 +12,7 @@ object DebugVarForm: TDebugVarForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
@@ -31,7 +31,7 @@ object DebugVarForm: TDebugVarForm
     Header.AutoSizeIndex = 0
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
     Header.SortColumn = 0
-    HintMode = hmTooltip
+    HintMode = hmHint
     ParentShowHint = False
     PopupMenu = PopupMenu1
     ShowHint = False
@@ -57,13 +57,13 @@ object DebugVarForm: TDebugVarForm
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 1
         Text = 'Value'
-        Width = 150
+        Width = 440
       end
       item
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 2
         Text = 'Type'
-        Width = 40
+        Width = 100
       end>
   end
   object JvDockClient1: TJvDockClient

@@ -10,7 +10,7 @@ object NppDockingForm1: TNppDockingForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
@@ -18,6 +18,13 @@ object NppDockingForm1: TNppDockingForm1
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
+  object LblSession: TLabel
+    Left = 344
+    Top = 2
+    Width = 47
+    Height = 13
+    Caption = 'Sessions:'
+  end
   object BitBtnStepInto: TBitBtn
     Left = 0
     Top = 0
@@ -551,14 +558,14 @@ object NppDockingForm1: TNppDockingForm1
     OnClick = BitBtnStopClick
   end
   object ComboBox1: TComboBox
-    Left = 344
+    Left = 394
     Top = 0
-    Width = 145
+    Width = 680
     Height = 21
     Style = csDropDownList
     ItemIndex = 0
     ParentShowHint = False
-    ShowHint = True
+    ShowHint = False
     TabOrder = 10
     Text = 'Disconnected...'
     OnSelect = ComboBox1Select
@@ -600,12 +607,12 @@ object NppDockingForm1: TNppDockingForm1
     TabServerOption.ActiveFont.Charset = DEFAULT_CHARSET
     TabServerOption.ActiveFont.Color = clWindowText
     TabServerOption.ActiveFont.Height = -11
-    TabServerOption.ActiveFont.Name = 'MS Sans Serif'
+    TabServerOption.ActiveFont.Name = 'Segoe UI'
     TabServerOption.ActiveFont.Style = []
     TabServerOption.InactiveFont.Charset = DEFAULT_CHARSET
     TabServerOption.InactiveFont.Color = 5395794
     TabServerOption.InactiveFont.Height = -11
-    TabServerOption.InactiveFont.Name = 'MS Sans Serif'
+    TabServerOption.InactiveFont.Name = 'Segoe UI'
     TabServerOption.InactiveFont.Style = []
     TabServerOption.ShowCloseButtonOnTabs = False
     Left = 256

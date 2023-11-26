@@ -5,7 +5,7 @@ object DebugRawForm1: TDebugRawForm1
   BorderStyle = bsSizeToolWin
   Caption = 'Raw DBGP'
   ClientHeight = 201
-  ClientWidth = 307
+  ClientWidth = 600
   Color = clBtnFace
   DockSite = True
   DragKind = dkDock
@@ -13,7 +13,7 @@ object DebugRawForm1: TDebugRawForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Consolas'
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
@@ -24,17 +24,17 @@ object DebugRawForm1: TDebugRawForm1
   object Memo1: TMemo
     Left = 0
     Top = 0
-    Width = 305
+    Width = 598
     Height = 169
     Anchors = [akLeft, akTop, akRight, akBottom]
     PopupMenu = PopupMenu1
     ReadOnly = True
     ScrollBars = ssBoth
-    TabOrder = 0
+    TabOrder = 2
   end
   object Button1: TButton
-    Left = 256
-    Top = 176
+    Left = 545
+    Top = 172
     Width = 51
     Height = 25
     Anchors = [akRight, akBottom]
@@ -45,23 +45,13 @@ object DebugRawForm1: TDebugRawForm1
     OnClick = Button1Click
   end
   object ComboBox1: TComboBox
-    Left = 0
+    Left = 4
     Top = 176
-    Width = 249
+    Width = 535
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
-    TabOrder = 2
+    TabOrder = 0
     OnKeyUp = ComboBox1KeyUp
-  end
-  object JvDockClient1: TJvDockClient
-    DirectDrag = False
-    ShowHint = False
-    LeftDock = False
-    TopDock = False
-    RightDock = False
-    CustomDock = False
-    Left = 8
-    Top = 8
   end
   object PopupMenu1: TPopupMenu
     Left = 40
@@ -74,5 +64,16 @@ object DebugRawForm1: TDebugRawForm1
       Caption = 'Clear'
       OnClick = Clear1Click
     end
+    object SaveDbgp: TMenuItem
+      Caption = 'Save as...'
+      OnClick = SaveDBGpClick
+    end
+  end
+  object DlgSaveDbgp: TSaveDialog
+    DefaultExt = '.log'
+    Filter = 'Raw DBGp|*.log;*.txt;*.xml'
+    Options = [ofHideReadOnly, ofOverwritePrompt, ofDontAddToRecent, ofEnableSizing]
+    Left = 16
+    Top = 114
   end
 end

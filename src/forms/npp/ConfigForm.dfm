@@ -10,7 +10,7 @@ object ConfigForm1: TConfigForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDefault
@@ -81,14 +81,14 @@ object ConfigForm1: TConfigForm1
       Caption = 'Listen port:'
     end
     object Label1: TLabel
-      Left = 250
+      Left = 235
       Top = 116
       Width = 134
       Height = 13
       Caption = 'Maximum depth of elements:'
     end
     object Label2: TLabel
-      Left = 250
+      Left = 235
       Top = 140
       Width = 117
       Height = 13

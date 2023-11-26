@@ -13,7 +13,7 @@ object DebugEvalForm1: TDebugEvalForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
@@ -24,7 +24,7 @@ object DebugEvalForm1: TDebugEvalForm1
   TextHeight = 13
   object Button1: TButton
     Left = 170
-    Top = 40
+    Top = 32
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
@@ -36,7 +36,7 @@ object DebugEvalForm1: TDebugEvalForm1
   end
   object Button2: TButton
     Left = 258
-    Top = 40
+    Top = 32
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
@@ -51,13 +51,5 @@ object DebugEvalForm1: TDebugEvalForm1
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
-  end
-  object CheckBoxReuseResult: TCheckBox
-    Left = 8
-    Top = 40
-    Width = 129
-    Height = 17
-    Caption = 'Open in same window'
-    TabOrder = 3
   end
 end

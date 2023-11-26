@@ -12,7 +12,7 @@ object DebugBreakpointsForm1: TDebugBreakpointsForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
@@ -29,7 +29,7 @@ object DebugBreakpointsForm1: TDebugBreakpointsForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
     Header.Options = [hoColumnResize, hoDrag, hoVisible]
-    HintMode = hmTooltip
+    HintMode = hmHint
     Images = ImageList1
     ParentShowHint = False
     PopupMenu = PopupMenu1
@@ -50,13 +50,13 @@ object DebugBreakpointsForm1: TDebugBreakpointsForm1
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 1
         Text = 'Type'
-        Width = 60
+        Width = 50
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 2
         Text = 'Breakpoint data'
-        Width = 200
+        Width = 512
       end
       item
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible]
