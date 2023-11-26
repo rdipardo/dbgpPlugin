@@ -17,7 +17,7 @@
 ::
 SETLOCAL
 
-set "VERSION=0.14.1"
+set "VERSION=0.14.2"
 set "PLUGIN=dbgpPlugin"
 set "SLUG_NAME=out\%PLUGIN%_v%VERSION%_win32"
 set "SLUGX64_NAME=out\%PLUGIN%_v%VERSION%_x64"

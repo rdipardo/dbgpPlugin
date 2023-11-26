@@ -1,3 +1,14 @@
+2023-11-26 v0.14.2
+
+Enabled source mapping of local, drive-mapped files.[^1]
+Improved error message reporting.
+Added a GUI control to set the debugger's listen port.
+The config form now automatically disables 'source' commands when the local setup option is choosen.
+The DBGp message input dialog can now save output to a file.
+
+---
+[^1]: Files with Windows UNC path names are affected by a known issue: <https://bugs.xdebug.org/view.php?id=1964>
+
 2023-04-20 v0.14.1
 
 Applied a new workaround for the issue where moving docked panels causes an infinite redraw loop.

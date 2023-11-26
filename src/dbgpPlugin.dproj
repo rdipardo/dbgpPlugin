@@ -56,14 +56,14 @@
         <SanitizedProjectName>dbgpPlugin</SanitizedProjectName>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=zobo@users.sf.net;FileDescription=DBGp debugger plugin for Notepad++;FileVersion=0.14.1.0;InternalName=$(MSBuildProjectName);LegalCopyright=Copyright (c) 2007-2012 Damjan Zobo Cvetko;LegalTrademarks=GPLv3, using library code under the LGPLv3;OriginalFilename=$(MSBuildProjectName).dll;ProductName=$(MSBuildProjectName);ProductVersion=0.14.1.0;Comments=Updated for x64 Notepad++ by Robert Di Pardo, (c) 2023;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=zobo@users.sf.net;FileDescription=DBGp debugger plugin for Notepad++;FileVersion=0.14.2.0;InternalName=$(MSBuildProjectName);LegalCopyright=Copyright (c) 2007-2012 Damjan Zobo Cvetko;LegalTrademarks=GPLv3, using library code under the LGPLv3;OriginalFilename=$(MSBuildProjectName).dll;ProductName=$(MSBuildProjectName);ProductVersion=0.14.2.0;Comments=Updated for x64 Notepad++ by Robert Di Pardo, (c) 2023;CFBundleName=</VerInfo_Keys>
         <DCC_DcuOutput>..\out\dcu\$(PLATFORM)\$(CONFIG)</DCC_DcuOutput>
         <DCC_ExeOutput>..\out\$(PLATFORM)\$(CONFIG)</DCC_ExeOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>14</VerInfo_MinorVer>
         <VerInfo_DLL>true</VerInfo_DLL>
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -93,10 +93,10 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.4.7_x86\notepad++.exe</Debugger_HostApplication>
+        <Debugger_HostApplication>C:\Users\Rob\dev\npp.8.6_x86\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_HostApplication>C:\Users\Rob\source\repos\workspace\bin\npp_8.4.7\notepad++.exe</Debugger_HostApplication>
+        <Debugger_HostApplication>C:\Users\Rob\dev\npp.8.6\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
