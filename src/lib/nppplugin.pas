@@ -174,7 +174,7 @@ function TNppPlugin.GetPluginsConfigDir: WideString;
 var
   s: array [0..1024] of char;
 begin
-  SendNppMessage(NPPM_GETPLUGINSCONFIGDIR, 1000, @s[0]);
+  SendNppMessage(NPPM_GETPLUGINSCONFIGDIR, Length(s)-1, @s[0]);
   Result := string(s);
 end;
 

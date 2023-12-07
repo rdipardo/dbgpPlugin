@@ -115,7 +115,9 @@ exports
   setInfo, getName, getFuncsArray, beNotified, messageProc, isUnicode;
 
 begin
+{$IFNDEF RELEASE}
   ReportMemoryLeaksOnShutdown := DebugHook <> 0;
+{$ENDIF}
   { First, assign the procedure to the DLLProc variable }
   DllProc := @DLLEntryPoint;
   { Now invoke the procedure to reflect that the DLL is attaching to the process }

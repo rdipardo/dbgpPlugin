@@ -693,7 +693,6 @@ var
   context, isNum: Integer;
 begin
   //process context
-  self.ProcessProperty(self.xml.ChildNodes[1].ChildNodes, list);
   try
     self.ProcessProperty(self.xml.ChildNodes[1].ChildNodes, list);
     Val(self.xml.ChildNodes[1].Attributes['context'], context, IsNum);

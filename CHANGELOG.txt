@@ -3,7 +3,7 @@
 Enabled source mapping of local, drive-mapped files.[^1]
 Improved error message reporting.
 Added a GUI control to set the debugger's listen port.
-The config form now automatically disables 'source' commands when the local setup option is choosen.
+The config form now automatically disables 'source' commands when the local setup option is chosen.
 The DBGp message input dialog can now save output to a file.
 
 ---
