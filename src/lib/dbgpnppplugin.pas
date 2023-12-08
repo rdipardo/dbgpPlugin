@@ -119,9 +119,14 @@ uses
   SysUtils,Controls;
 
 procedure TDbgpNppPlugin.BeNotified(sn: PSciNotification);
+const
+  hNil = THandle(Nil);
 var
   SciTextRangeMsg,LangId: Cardinal;
-  x:^TToolbarIcons;
+  bmpX,icoX,bmpY,icoY: Integer;
+  hHDC: HDC;
+  tb: TToolbarIcons;
+  tbDM: TTbIconsDarkMode;
   tr: TSciTextRange;
   s: string;
   pzS: PAnsiChar;
@@ -131,10 +136,28 @@ begin
   begin
     if (sn^.nmhdr.code = NPPN_TBMODIFICATION) then
     begin
-      New(x);
-      x^.ToolbarIcon := 0;
-      x^.ToolbarBmp := LoadImage(Hinstance, 'IDB_DBGP_TEST', IMAGE_BITMAP, 0, 0, (LR_DEFAULTSIZE or LR_LOADMAP3DCOLORS));
-      SendNppMessage(NPPM_ADDTOOLBARICON, self.FuncArray[0].CmdID, x);
+      hHDC := hNil;
+      try
+        hHDC := GetDC(hNil);
+        bmpX := MulDiv(16, GetDeviceCaps(hHDC, LOGPIXELSX), 96);
+        bmpY := MulDiv(16, GetDeviceCaps(hHDC, LOGPIXELSY), 96);
+        icoX := MulDiv(32, GetDeviceCaps(hHDC, LOGPIXELSX), 96);
+        icoY := MulDiv(32, GetDeviceCaps(hHDC, LOGPIXELSY), 96);
+      finally
+        ReleaseDC(hNil, hHDC);
+      end;
+      tb.ToolbarBmp := LoadImage(Hinstance, 'IDB_DBGP_TEST', IMAGE_BITMAP, bmpX, bmpY, 0);
+      tb.ToolbarIcon := LoadImage(Hinstance, 'IDB_DBGP_ICO', IMAGE_ICON, icoX, icoY, (LR_DEFAULTSIZE or LR_LOADTRANSPARENT));
+      if SupportsDarkMode then begin
+        with tbDM do begin
+          ToolbarBmp := tb.ToolbarBmp;
+          ToolbarIcon := tb.ToolbarIcon;
+          ToolbarIconDarkMode := tb.ToolbarIcon;
+        end;
+        SendNppMessage(NPPM_ADDTOOLBARICON_FORDARKMODE, self.FuncArray[0].CmdID, @tbDM);
+      end else
+        SendNppMessage(NPPM_ADDTOOLBARICON_DEPRECATED, self.FuncArray[0].CmdID, @tb);
+
       self.IsCompatible := {$IFDEF CPUx64}self.SupportsBigFiles{$ELSE}True{$ENDIF};
       if (not self.IsCompatible) then self.WarnUser;
     end;
