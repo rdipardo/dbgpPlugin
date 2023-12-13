@@ -22,8 +22,7 @@ unit NppForms;
 interface
 
 uses
-  Windows, Messages, Classes, NppPlugin, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs;
+  Windows, Messages, NppPlugin, Vcl.Controls, Vcl.Forms;
 
 type
   TWinApiMsgProc = function(Hndl: HWND; Msg: Cardinal; _WParam: WPARAM;

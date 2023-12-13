@@ -22,7 +22,7 @@ unit DebugRawForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Dialogs, StdCtrls, Menus, Clipbrd, NppDockingForm;
+  Windows, Messages, Classes, Controls, Dialogs, StdCtrls, Menus, Clipbrd, NppDockingForm;
 
 type
   TDebugRawForm1 = class(TNppDockingForm)

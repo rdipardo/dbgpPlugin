@@ -22,7 +22,7 @@ unit DebugBreakpointEditForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, SysUtils, Controls, Forms,
   Dialogs, StdCtrls, DbgpWinSocket, NppDockingForm;
 
 type

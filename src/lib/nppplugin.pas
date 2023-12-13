@@ -22,7 +22,7 @@ unit nppplugin;
 interface
 
 uses
-  Classes, SysUtils, Windows, Messages, Vcl.Dialogs, Vcl.Forms;
+  Classes, SysUtils, Windows, Messages, Vcl.Forms;
 
 {$I '..\Include\Scintilla.inc'}
 {$I '..\Include\Npp.inc'}

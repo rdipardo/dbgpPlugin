@@ -22,7 +22,7 @@ unit DebugBreakpointsForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, SysUtils, Classes, Controls, Forms,
   Dialogs, JvComponentBase, JvDockControlForm, VirtualTrees, DbgpWinSocket,
   Menus, DebugBreakpointEditForm, NppDockingForm, ImgList, System.UITypes;
 

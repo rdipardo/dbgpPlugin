@@ -26,7 +26,7 @@ interface
 
 uses
   NppPlugin, MainForm, nppdockingform,
-  ConfigForm, Forms, Classes, Windows, Graphics, IniFiles, DbgpWinSocket, Messages, AboutForm;
+  ConfigForm, Classes, Windows, Graphics, IniFiles, DbgpWinSocket, AboutForm;
 
 const
   NO_WARN_UNC_BPS = 1;

@@ -22,7 +22,7 @@ unit DebugEditWatchForms;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, Graphics, Controls, Forms,
   Dialogs, NppForms, StdCtrls;
 
 type

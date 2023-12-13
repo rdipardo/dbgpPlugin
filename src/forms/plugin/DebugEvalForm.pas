@@ -22,7 +22,7 @@ unit DebugEvalForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, Graphics, Controls, Forms,
   Dialogs, StdCtrls, NppDockingForm;
 
 type

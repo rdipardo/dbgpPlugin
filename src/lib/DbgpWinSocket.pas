@@ -22,8 +22,8 @@ unit DbgpWinSocket;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, NetEncoding, ScktComp, WinSock, XMLDoc, XMLDOM, XMLIntf,
-  StrUtils, Variants, Base64, IdGlobal, Forms{$IFDEF DBGP_COMPRESSION}, zlib{$ENDIF};
+  Windows, SysUtils, Classes, NetEncoding, ScktComp, WinSock, XMLDoc, XMLDOM, XMLIntf,
+  StrUtils, Base64, IdGlobal, Forms{$IFDEF DBGP_COMPRESSION}, zlib{$ENDIF};
 type
 //  TDbgpWinSocket = class;
 //  TDbgpRawEvent = procedure (Sender: TObject; Socket: TDbgpWinSocket; Data:String) of object;

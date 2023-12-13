@@ -22,7 +22,7 @@ unit DebugWatchForms;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, Graphics, Controls, Forms,
   Dialogs, DebugVarForms, JvComponentBase, JvDockControlForm, VirtualTrees, DbgpWinSocket,
   Menus, DebugEditWatchForms;
 

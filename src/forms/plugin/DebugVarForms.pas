@@ -22,7 +22,7 @@ unit DebugVarForms;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, Classes, Graphics, Controls, Forms,
   Dialogs, JvDockTree, JvDockControlForm, JvDockVIDStyle, JvDockVSNetStyle,
   JvComponentBase, VirtualTrees, DbgpWinSocket, DebugInspectorForm, nppplugin,
   Menus, StrUtils, NppDockingForm, Clipbrd;

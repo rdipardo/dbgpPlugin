@@ -22,7 +22,7 @@ unit DebugStackForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, SysUtils, Controls, Forms,
   Dialogs, VirtualTrees, JvDockTree, JvDockControlForm, JvDockVCStyle,
   JvComponentBase, JvDockVIDStyle, JvDockVSNetStyle, DbgpWinSocket, Menus, NppDockingForm;
 

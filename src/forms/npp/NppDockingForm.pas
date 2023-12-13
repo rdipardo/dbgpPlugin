@@ -22,8 +22,7 @@ unit NppDockingForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, NppPlugin, NppForms, Vcl.Forms,
-  Vcl.Dialogs, Vcl.Controls;
+  Windows, Messages, SysUtils, Classes, NppPlugin, NppForms, Vcl.Forms, Vcl.Controls;
 
 {$I '..\..\Include\Docking.inc'}
 {$I '..\..\Include\DockingResource.inc'}

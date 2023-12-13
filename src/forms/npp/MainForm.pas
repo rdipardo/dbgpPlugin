@@ -22,8 +22,8 @@ unit MainForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NppDockingForm, StdCtrls, ScktComp, DbgpWinSocket, ComCtrls,
+  Windows, Messages, SysUtils, Classes, Controls, Forms,
+  NppDockingForm, StdCtrls, ScktComp, DbgpWinSocket, ComCtrls,
   Buttons, ExtCtrls, Grids, JvDockTree, JvDockControlForm, JvDockVCStyle,
   JvComponentBase, DebugStackForm, DebugVarForms, JvDockVIDStyle, JvDockVSNetStyle,
   DebugEvalForm, DebugRawForm, ImgList, ToolWin, DebugBreakpointsForm,

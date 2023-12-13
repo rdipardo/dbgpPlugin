@@ -22,8 +22,8 @@ unit ConfigForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Grids, StdCtrls, NppForms, DbgpWinSocket, JvDockTree,
+  Windows, Messages, SysUtils, Classes, Controls, Forms,
+  Grids, StdCtrls, NppForms, DbgpWinSocket, JvDockTree,
   JvDockControlForm, JvDockVCStyle, JvComponentBase, Spin;
 
 type

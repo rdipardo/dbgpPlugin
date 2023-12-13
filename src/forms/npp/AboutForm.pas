@@ -22,8 +22,7 @@ unit AboutForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NppDockingForm, StdCtrls;
+  Windows, Messages, SysUtils, Controls, Forms, NppDockingForm, StdCtrls;
 
 type
   TAboutForm1 = class(TNppDockingForm)

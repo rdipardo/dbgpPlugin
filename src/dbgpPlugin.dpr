@@ -18,7 +18,7 @@
 }
 
 library dbgpPlugin;
-{$R 'dbgpPluginRes.res' 'dbgpPluginRes.rc'}
+{$R 'dbgpPluginRes.res'}
 
 {$IF CompilerVersion >= 21.0}
 {$WEAKLINKRTTI ON}
@@ -28,13 +28,8 @@ library dbgpPlugin;
 {$WARN SYMBOL_PLATFORM OFF} 
 
 uses
-  SysUtils,
-  Classes,
-  Types,
   Windows,
-  Dialogs,
   Messages,
-  Forms,
   nppplugin in 'lib\nppplugin.pas',
   Base64 in 'lib\Base64.pas',
   dbgpnppplugin in 'lib\dbgpnppplugin.pas',
@@ -54,8 +49,6 @@ uses
   DebugContextForms in 'forms\plugin\DebugContextForms.pas' {DebugContextForm},
   DebugWatchForms in 'forms\plugin\DebugWatchForms.pas' {DebugWatchFrom},
   DebugEditWatchForms in 'forms\plugin\DebugEditWatchForms.pas' {DebugEditWatchForm};
-
-{$R *.res}
 
 procedure DLLEntryPoint(dwReason: DWord);
 begin
