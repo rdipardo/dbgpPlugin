@@ -28,8 +28,8 @@ IDB_DBGP_RUN                BITMAP                  "bmp/run.bmp"
 */
 
 #define PLUGIN_NAME "dbgpPlugin"
-#define PLUGIN_VERSION "0.14.2.0\0"
-#define PLUGIN_VERSION_WORDS 0,14,2,0
+#define PLUGIN_VERSION "0.14.2.1\0"
+#define PLUGIN_VERSION_WORDS 0,14,2,1
 
 1 VERSIONINFO
   FILEVERSION PLUGIN_VERSION_WORDS
@@ -58,7 +58,7 @@ BEGIN
   END
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x409, 1033
+    VALUE "Translation", 0x409, 1200
   END
 END
 

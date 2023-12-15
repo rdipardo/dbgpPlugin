@@ -1,3 +1,9 @@
+2023-12-15 v0.14.2.1
+
+Fixed property evaluation popups in N++ versions 8.4.1/2 by checking for zero-padded version words.
+Fixed the tiny size of the toolbar bitmap by dynamically setting its dimensions at runtime.
+Moved DLL version info to a resource file.
+
 2023-11-26 v0.14.2
 
 Enabled source mapping of local, drive-mapped files.[^1]
