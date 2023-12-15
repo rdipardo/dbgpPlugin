@@ -372,8 +372,7 @@ begin
   NppVersion := GetNppVersion;
   Result :=
     (HIWORD(NppVersion) > 8) or
-    ((HIWORD(NppVersion) = 8) and
-       ((LOWORD(NppVersion) >= 43) and (not (LOWORD(NppVersion) in [191, 192, 193]))));
+    ((HIWORD(NppVersion) = 8) and (LOWORD(NppVersion) >= 430));
 end;
 
 end.
