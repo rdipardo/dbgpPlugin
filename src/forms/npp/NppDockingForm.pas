@@ -33,7 +33,7 @@ type
     { Private declarations }
     FOnDock: TNotifyEvent;
     FOnFloat: TNotifyEvent;
-    procedure RemoveControlParent(control: TControl);
+    procedure SetControlParent(control: TControl);
   protected
     { Protected declarations }
     ToolbarData: TToolbarData;
@@ -73,7 +73,6 @@ begin
   self.DlgId := DlgId;
   self.CmdId := self.Npp.CmdIdFromDlgId(DlgId);
   self.RegisterDockingForm(self.NppDefaultDockingMask);
-  self.RemoveControlParent(self);
 end;
 
 constructor TNppDockingForm.Create(AOwner: TNppForm; DlgId: Integer);
@@ -81,7 +80,6 @@ begin
   inherited Create(AOwner);
   self.DlgId := DlgId;
   self.RegisterDockingForm(self.NppDefaultDockingMask);
-  self.RemoveControlParent(self);
 end;
 
 destructor TNppDockingForm.Destroy;
@@ -102,7 +100,7 @@ procedure TNppDockingForm.OnWM_NOTIFY(var msg: TWMNotify);
 begin
   if (self.Npp.NppData.NppHandle <> msg.NMHdr.hwndFrom) then
   begin
-    self.RemoveControlParent(self);
+    self.SetControlParent(self);
     inherited;
     exit;
   end;
@@ -193,7 +191,7 @@ end;
 // https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net/issues/17#issuecomment-683455467
 // - R.D.
 // ==========================================================================================
-procedure TNppDockingForm.RemoveControlParent(control: TControl);
+procedure TNppDockingForm.SetControlParent(control: TControl);
 var
   wincontrol: TWinControl;
   i: Integer;
@@ -213,7 +211,7 @@ begin
   for i := control.ComponentCount - 1 downto 0 do
   begin
     if (control.Components[i] is TControl) then
-      self.RemoveControlParent(control.Components[i] as TControl);
+      self.SetControlParent(control.Components[i] as TControl);
   end;
 end;
 
