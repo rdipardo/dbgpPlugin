@@ -1,10 +1,10 @@
 {$IFNDEF SCINTILLA_INC}
 {$DEFINE SCINTILLA_INC}
 {
-  Object Pascal definitions for Scintilla 5.3.2
-  https://github.com/notepad-plus-plus/notepad-plus-plus/commit/fc61868cf2e317bfb7384502f80b6476fda6ddc8
+  Object Pascal definitions for Scintilla 5.4.3
+  https://github.com/notepad-plus-plus/notepad-plus-plus/blob/master/scintilla/include/Scintilla.h
 
-  Copyright (c) 2022 Robert Di Pardo <dipardo.r@gmail.com>
+  Copyright (c) 2024 Robert Di Pardo <dipardo.r@gmail.com>
   Distributed under the terms of the GNU Lesser General Public License Version 3.0 or later
 }
 type
@@ -549,6 +549,7 @@ const
   SCI_AUTOCGETAUTOHIDE = 2119;
   SC_AUTOCOMPLETE_NORMAL = 0;
   SC_AUTOCOMPLETE_FIXED_SIZE = 1;
+  SC_AUTOCOMPLETE_SELECT_FIRST_ITEM = 2;
   SCI_AUTOCSETOPTIONS = 2638;
   SCI_AUTOCGETOPTIONS = 2639;
   SCI_AUTOCSETDROPRESTOFWORD = 2270;
@@ -992,7 +993,9 @@ const
   SC_SEL_LINES = 2;
   SC_SEL_THIN = 3;
   SCI_SETSELECTIONMODE = 2422;
+  SCI_CHANGESELECTIONMODE = 2659;
   SCI_GETSELECTIONMODE = 2423;
+  SCI_SETMOVEEXTENDSSELECTION = 2719;
   SCI_GETMOVEEXTENDSSELECTION = 2706;
   SCI_GETLINESELSTARTPOSITION = 2424;
   SCI_GETLINESELENDPOSITION = 2425;
@@ -1138,6 +1141,7 @@ const
   SCI_CLEARSELECTIONS = 2571;
   SCI_SETSELECTION = 2572;
   SCI_ADDSELECTION = 2573;
+  SCI_SELECTIONFROMPOINT = 2474;
   SCI_DROPSELECTIONN = 2671;
   SCI_SETMAINSELECTION = 2574;
   SCI_GETMAINSELECTION = 2575;
