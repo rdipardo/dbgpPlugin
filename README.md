@@ -1,19 +1,11 @@
 DBGP Notepad++ plugin
 =====================
 
-Status
+Unmaintained
 ------
 
-After a [request from the Notepad++ community][0], this project was created to reboot development of DBGp.
-The original plugin is [abandonware][1]. The author now maintains a [VS Code extension][2] with the same and better functionality.
+Consider using the [VS Code extension][2] instead.
 
-The goals of this project are to:
-
-* make DBGp's code base available in a clean, organized form, while preserving as much of the original as possible
-* upgrade the visual components libraries for compatibility with recent Delphi IDEs
-* make the code binary compatible with recent 64-bit versions of Notepad++
-
-There are currently __*no*__ plans to implement new features. Users looking for those will be better served by the [VS Code extension][2].
 
 Configuring Xdebug 3
 --------------------
